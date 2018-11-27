@@ -72,7 +72,11 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   public syncScroll = (container: HTMLElement): void => {
     const { nonStickyContent } = this;
-
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop);
+    }
+    console.log('Sticky syncScroll:', this.props.stickyPosition, this.props.stickyClassName, this.distanceFromTop);
     if (nonStickyContent && this.props.isScrollSynced) {
       nonStickyContent.scrollLeft = container.scrollLeft;
     }
@@ -80,7 +84,11 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   public componentDidMount(): void {
     const { scrollablePane } = this.context;
-
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop);
+    }
+    console.log('Sticky componentDidMount:', this.props.stickyPosition, this.props.stickyClassName, this.distanceFromTop);
     if (!scrollablePane) {
       return;
     }
@@ -106,10 +114,21 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     if (!scrollablePane) {
       return;
     }
-
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop);
+    }
+    console.log('Sticky componentDidUpdate:', this.props.stickyPosition, this.props.stickyClassName, this.distanceFromTop);
     if (prevState.isStickyTop !== this.state.isStickyTop || prevState.isStickyBottom !== this.state.isStickyBottom) {
       scrollablePane.updateStickyRefHeights();
       // Sync Sticky scroll position with content container on each update
+      console.log(
+        'Sticky componentDidUpdate:',
+        'syncing scroll',
+        this.props.stickyPosition,
+        this.props.stickyClassName,
+        this.distanceFromTop
+      );
       scrollablePane.syncScrollSticky(this);
     }
   }
@@ -120,8 +139,7 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     }
 
     const { isStickyTop, isStickyBottom } = this.state;
-
-    return (isStickyTop !== nextState.isStickyTop ||
+    const shouldUpdate = (isStickyTop !== nextState.isStickyTop ||
       isStickyBottom !== nextState.isStickyBottom ||
       this.props.stickyPosition !== nextProps.stickyPosition ||
       this.props.children !== nextProps.children ||
@@ -130,6 +148,13 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
         this._placeHolder &&
         this._placeHolder.current &&
         this._nonStickyContent.current.offsetHeight !== this._placeHolder.current.offsetHeight)) as boolean;
+
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop);
+    }
+    console.log('Sticky shouldComponentUpdate:', this.props.stickyPosition, this.props.stickyClassName, this.distanceFromTop, shouldUpdate);
+    return shouldUpdate;
   }
 
   public render(): JSX.Element {
@@ -139,7 +164,11 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     if (!this.context.scrollablePane) {
       return <div>{this.props.children}</div>;
     }
-
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop);
+    }
+    console.log('Sticky Render:', this.props.stickyPosition, stickyClassName, this.distanceFromTop);
     return (
       <div ref={this._root}>
         {this.canStickyTop && (
@@ -183,11 +212,17 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   private _setDistanceFromTop(distance: number): void {
     const { scrollablePane } = this.context;
-
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop, distance);
+    }
+    console.log('Sticky _setDistanceFromTop:', this.props.stickyPosition, this.props.stickyClassName, this.distanceFromTop, distance);
     if (this.distanceFromTop !== distance && scrollablePane) {
       this.distanceFromTop = distance;
       scrollablePane.sortSticky(this, true);
+      console.log('Sticky ForceUpdate', this.props.stickyPosition, this.props.stickyClassName, this.distanceFromTop, distance);
       this.forceUpdate();
+      scrollablePane.syncScrollSticky(this);
     }
   }
 
@@ -221,7 +256,15 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   private _onScrollEvent = (container: HTMLElement, footerStickyContainer: HTMLElement): void => {
     if (this.root && this.nonStickyContent) {
+      if (this.props.stickyPosition === StickyPositionType.Footer) {
+        // footer abc
+        console.log('footer abc', this.distanceFromTop);
+      }
       this._setDistanceFromTop(this._getNonStickyDistanceFromTop(container));
+      if (this.props.stickyPosition === StickyPositionType.Footer) {
+        // footer abc
+        console.log('footer abc', this.distanceFromTop);
+      }
       let isStickyTop = false;
       let isStickyBottom = false;
 
@@ -264,15 +307,20 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
   private _getNonStickyDistanceFromTop = (container: HTMLElement): number => {
     let distance = 0;
     let currElem = this.root;
-
+    if (this.props.stickyPosition === StickyPositionType.Footer) {
+      // footer abc
+      console.log('footer abc', this.distanceFromTop);
+    }
     if (currElem) {
       while (currElem && currElem.offsetParent !== container) {
         distance += currElem.offsetTop;
+        console.log('Sticky _getNonStickyDistanceFromTop', distance, currElem);
         currElem = currElem.offsetParent as HTMLDivElement;
       }
 
       if (currElem && currElem.offsetParent === container) {
         distance += currElem.offsetTop;
+        console.log('Sticky _getNonStickyDistanceFromTop', distance, currElem);
       }
     }
     return distance;
