@@ -968,7 +968,7 @@ export class ComboBox extends BaseComponent<IComboBoxProps, IComboBoxState> {
 
     if (this.state.focused) {
       this.setState({ focused: false });
-      if (!this.props.multiSelect) {
+      if (!this.props.multiSelect || this.props.allowFreeform) {
         this._submitPendingValue(event);
       }
     }
