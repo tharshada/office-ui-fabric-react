@@ -136,7 +136,10 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
           });
           if (stickyList.length) {
             stickyList.forEach(sticky => {
-              sticky.forceUpdate();
+              // ToDo: find why this update is needed.
+              sticky.setState({
+                forceUpdate: !sticky.state.forceUpdate
+              });
             });
           }
         }

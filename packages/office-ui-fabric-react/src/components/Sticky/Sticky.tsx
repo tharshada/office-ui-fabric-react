@@ -7,6 +7,7 @@ import { IScrollablePaneContext } from '../ScrollablePane/ScrollablePane.base';
 export interface IStickyState {
   isStickyTop: boolean;
   isStickyBottom: boolean;
+  forceUpdate: boolean;
 }
 
 export interface IStickyContext {
@@ -38,7 +39,8 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     super(props);
     this.state = {
       isStickyTop: false,
-      isStickyBottom: false
+      isStickyBottom: false,
+      forceUpdate: false
     };
     this.distanceFromTop = 0;
     this._activeElement = undefined;
@@ -124,12 +126,13 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       return true;
     }
 
-    const { isStickyTop, isStickyBottom } = this.state;
+    const { isStickyTop, isStickyBottom, forceUpdate } = this.state;
 
     return (isStickyTop !== nextState.isStickyTop ||
       isStickyBottom !== nextState.isStickyBottom ||
       this.props.stickyPosition !== nextProps.stickyPosition ||
       this.props.children !== nextProps.children ||
+      forceUpdate !== nextState.forceUpdate ||
       _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop) ||
       _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom) ||
       _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder) ||
