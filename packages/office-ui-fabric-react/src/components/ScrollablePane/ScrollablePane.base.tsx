@@ -114,10 +114,11 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
         // Compute the scrollbar height which might have changed due to change in width of the content which might cause overflow
         const scrollbarHeight = this._getScrollbarHeight();
         // check if the scroll bar height has changed and update the state so that it's postioned correctly below sticky footer
-        this.setState({
-          scrollbarHeight: scrollbarHeight
-        });
-
+        if (scrollbarHeight !== this.state.scrollbarHeight) {
+          this.setState({
+            scrollbarHeight: scrollbarHeight
+          });
+        }
         // Notify subscribers again to re-check whether Sticky should be Sticky'd or not
         this.notifySubscribers();
 
