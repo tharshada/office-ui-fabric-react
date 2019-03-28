@@ -334,39 +334,39 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
       if (!stickyContainer.contains(stickyContentToAdd)) {
         const stickyChildrenElements: Element[] = [].slice.call(stickyContainer.children);
 
-        const stickyList: Sticky[] = [];
-        // Get stickies.  Filter by canStickyTop/Bottom, then sort by distance from top, and then
-        // filter by elements that are in the stickyContainer already.
+        const stickyAboveList: Sticky[] = [];
+        const stickyBelowList: Sticky[] = [];
+        // You can iterate through the elements of a set(here _stickies) in insertion order
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
+        // Assumption: first component render()=> DidMount()
+        // then second component render()=> DidMount()
+        // ...
         this._stickies.forEach(stickyItem => {
           if (stickyContainer === this.stickyAbove && sticky.canStickyTop) {
-            stickyList.push(stickyItem);
+            stickyAboveList.push(stickyItem);
           } else if (sticky.canStickyBottom) {
-            stickyList.push(stickyItem);
+            stickyBelowList.push(stickyItem);
           }
         });
 
-        const stickyListSorted = stickyList
-          .sort((a, b) => {
-            return a.distanceFromTop - b.distanceFromTop;
-          })
-          .filter(item => {
-            const stickyContent = stickyContainer === this.stickyAbove ? item.stickyContentTop : item.stickyContentBottom;
-            if (stickyContent) {
-              return stickyChildrenElements.indexOf(stickyContent) > -1;
-            }
-          });
-
-        // Get first element that has a distance from top that is further than our sticky that is being added
         let targetStickyToAppendBefore: Sticky | undefined = undefined;
-        for (const i in stickyListSorted) {
-          // if two components have same distanceFromTop, the latter one should be appended below (stable sort)
-          if (stickyListSorted[i].distanceFromTop > sticky.distanceFromTop) {
-            targetStickyToAppendBefore = stickyListSorted[i];
-            break;
+        let isBefore: boolean = false;
+        // use stickyAboveList or stickyBelowList
+        const stickyList: Sticky[] = stickyContainer === this.stickyAbove ? stickyAboveList : stickyBelowList;
+        for (let i = 0; i < stickyList.length; i++) {
+          const stickyItem = stickyList[i];
+          if (stickyItem === sticky) {
+            isBefore = true;
+          }
+          if (isBefore) {
+            const stickyContent = stickyContainer === this.stickyAbove ? stickyItem.stickyContentTop : stickyItem.stickyContentBottom;
+            if (stickyContent && stickyChildrenElements.indexOf(stickyContent) > -1) {
+              targetStickyToAppendBefore = stickyItem;
+              break;
+            }
           }
         }
 
-        // If target element to append before is known, then grab respective stickyContentTop/Bottom element and insert before
         let targetContainer: HTMLDivElement | null = null;
         if (targetStickyToAppendBefore) {
           targetContainer =
