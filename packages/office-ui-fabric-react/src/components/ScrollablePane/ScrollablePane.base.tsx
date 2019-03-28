@@ -11,7 +11,7 @@ export interface IScrollablePaneContext {
     addSticky: (sticky: Sticky) => void;
     removeSticky: (sticky: Sticky) => void;
     updateStickyRefHeights: () => void;
-    sortSticky: (sticky: Sticky, sortAgain?: boolean) => void;
+    sortSticky: (sticky: Sticky) => void;
     notifySubscribers: (sort?: boolean) => void;
     syncScrollSticky: (sticky: Sticky) => void;
   };
@@ -48,8 +48,8 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     this.state = {
       stickyTopHeight: 0,
       stickyBottomHeight: 0,
-      scrollbarWidth: undefined,
-      scrollbarHeight: undefined
+      scrollbarWidth: 0,
+      scrollbarHeight: 0
     };
 
     this._notifyThrottled = this._async.throttle(this.notifySubscribers, 50);
@@ -239,7 +239,6 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
       sticky.setDistanceFromTop(this.contentContainer);
       this.sortSticky(sticky);
     }
-    this.notifySubscribers();
   };
 
   public removeSticky = (sticky: Sticky): void => {
@@ -248,11 +247,8 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     this.notifySubscribers();
   };
 
-  public sortSticky = (sticky: Sticky, sortAgain?: boolean): void => {
+  public sortSticky = (sticky: Sticky): void => {
     if (this.stickyAbove && this.stickyBelow) {
-      if (sortAgain) {
-        this._removeStickyFromContainers(sticky);
-      }
       if (sticky.canStickyTop && sticky.stickyContentTop) {
         this._addToStickyContainer(sticky, this.stickyAbove, sticky.stickyContentTop);
       }
@@ -363,7 +359,8 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
         // Get first element that has a distance from top that is further than our sticky that is being added
         let targetStickyToAppendBefore: Sticky | undefined = undefined;
         for (const i in stickyListSorted) {
-          if (stickyListSorted[i].distanceFromTop >= sticky.distanceFromTop) {
+          // if two components have same distanceFromTop, the latter one should be appended below (stable sort)
+          if (stickyListSorted[i].distanceFromTop > sticky.distanceFromTop) {
             targetStickyToAppendBefore = stickyListSorted[i];
             break;
           }
