@@ -10802,6 +10802,8 @@ interface IStickyProps extends React.Props<Sticky> {
 // @public (undocumented)
 interface IStickyState {
   // (undocumented)
+  distanceFromTop1: number;
+  // (undocumented)
   isStickyBottom: boolean;
   // (undocumented)
   isStickyTop: boolean;
