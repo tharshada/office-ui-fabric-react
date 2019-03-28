@@ -195,12 +195,9 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   private _setDistanceFromTop(distance: number): void {
     const { scrollablePane } = this.context;
-
     if (this.distanceFromTop !== distance && scrollablePane) {
       this.distanceFromTop = distance;
       scrollablePane.sortSticky(this, true);
-      // this.forceUpdate();
-      // scrollablePane.syncScrollSticky(this);
       this.setState({
         distanceFromTop1: this.distanceFromTop
       });
@@ -248,8 +245,6 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   private _onScrollEvent = (container: HTMLElement, footerStickyContainer: HTMLElement): void => {
     if (this.root && this.nonStickyContent) {
-      // this._setDistanceFromTop(this._getNonStickyDistanceFromTop(container));
-      // const prevDistanceFromTop = this.distanceFromTop;
       this._onlySetDistanceFromTop(this._getNonStickyDistanceFromTop(container));
       let isStickyTop = false;
       let isStickyBottom = false;
@@ -275,23 +270,7 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       } else {
         this._activeElement = undefined;
       }
-      // if (this.state && (this.state.isStickyTop !== (this.canStickyTop && isStickyTop) ||
-      //   this.state.isStickyBottom !== isStickyBottom) && prevDistanceFromTop !== this.distanceFromTop) {
-      //   const { scrollablePane } = this.context;
-      //   if (scrollablePane) {
-      //     scrollablePane.sortSticky(this, true);
-      //     // this.forceUpdate();
-      //     this.setState({
-      //       distanceFromTop1: this.distanceFromTop
-      //     });
-      //     // scrollablePane.syncScrollSticky(this);
-      //   }
-      // } else {
-      //   this.setState({
-      //     isStickyTop: this.canStickyTop && isStickyTop,
-      //     isStickyBottom: isStickyBottom
-      //   });
-      // }
+
       this.setState({
         isStickyTop: this.canStickyTop && isStickyTop,
         isStickyBottom: isStickyBottom,
@@ -363,13 +342,14 @@ function _isOffsetHeightDifferent(a: React.RefObject<HTMLElement>, b: React.RefO
   return (a && b && a.current && b.current && a.current.offsetHeight !== b.current.offsetHeight) as boolean;
 }
 
-function _isScrollWidthDifferent(a: React.RefObject<HTMLElement>, b: React.RefObject<HTMLDivElement>): boolean {
-  return (a &&
-    b &&
-    a.current &&
-    b.current &&
-    a.current.firstElementChild &&
-    b.current.firstElementChild &&
-    b.current.firstElementChild.firstElementChild &&
-    a.current.firstElementChild.clientWidth !== b.current.firstElementChild.firstElementChild.clientWidth) as boolean;
+function _isScrollWidthDifferent(nonStickyContent: React.RefObject<HTMLElement>, placeHolder: React.RefObject<HTMLDivElement>): boolean {
+  return (nonStickyContent &&
+    placeHolder &&
+    nonStickyContent.current &&
+    placeHolder.current &&
+    nonStickyContent.current.firstElementChild &&
+    placeHolder.current.firstElementChild &&
+    placeHolder.current.firstElementChild.firstElementChild &&
+    nonStickyContent.current.firstElementChild.clientWidth !==
+      placeHolder.current.firstElementChild.firstElementChild.clientWidth) as boolean;
 }
