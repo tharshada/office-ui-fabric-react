@@ -6037,7 +6037,7 @@ export interface IScrollablePaneContext {
         addSticky: (sticky: Sticky) => void;
         removeSticky: (sticky: Sticky) => void;
         updateStickyRefHeights: () => void;
-        sortSticky: (sticky: Sticky, sortAgain?: boolean) => void;
+        sortSticky: (sticky: Sticky) => void;
         notifySubscribers: (sort?: boolean) => void;
         syncScrollSticky: (sticky: Sticky) => void;
     };
@@ -6769,6 +6769,8 @@ export interface IStickyProps extends React.Props<Sticky> {
 
 // @public (undocumented)
 export interface IStickyState {
+    // (undocumented)
+    forceUpdate: boolean;
     // (undocumented)
     isStickyBottom: boolean;
     // (undocumented)
@@ -8168,7 +8170,7 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     // (undocumented)
     shouldComponentUpdate(nextProps: IScrollablePaneProps, nextState: IScrollablePaneState): boolean;
     // (undocumented)
-    sortSticky: (sticky: Sticky, sortAgain?: boolean | undefined) => void;
+    sortSticky: (sticky: Sticky) => void;
     // (undocumented)
     readonly stickyAbove: HTMLDivElement | null;
     // (undocumented)
