@@ -4,6 +4,7 @@ import { BaseComponent, classNamesFunction, divProperties, getNativeProps, getRT
 import { IScrollablePane, IScrollablePaneProps, IScrollablePaneStyles, IScrollablePaneStyleProps } from './ScrollablePane.types';
 import { Sticky } from '../../Sticky';
 const myDebug = true;
+const noTable = false;
 export interface IScrollablePaneContext {
   scrollablePane?: {
     subscribe: (handler: (container: HTMLElement, stickyContainer: HTMLElement) => void) => void;
@@ -196,25 +197,27 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
             this.state.scrollbarWidth !== nextState.scrollbarWidth ||
             this.state.scrollbarHeight !== nextState.scrollbarHeight
         );
-        console.table({
-          children: this.props.children !== nextProps.children,
-          stickyTopHeight: this.state.stickyTopHeight !== nextState.stickyTopHeight,
-          stickyBottomHeight: this.state.stickyBottomHeight !== nextState.stickyBottomHeight,
-          scrollbarWidth: this.state.scrollbarWidth !== nextState.scrollbarWidth,
-          scrollbarHeight: this.state.scrollbarHeight !== nextState.scrollbarHeight,
-          initialScrollPosition: this.props.initialScrollPosition !== nextProps.initialScrollPosition,
-          className: this.props.className !== nextProps.className
-        });
-        console.table({
-          stickyTopHeight: this.state.stickyTopHeight,
-          newStickyTopHeight: nextState.stickyTopHeight,
-          stickyBottomHeight: this.state.stickyBottomHeight,
-          newstickyBottomHeight: nextState.stickyBottomHeight,
-          scrollbarWidth: this.state.scrollbarWidth,
-          newscrollbarWidth: nextState.scrollbarWidth,
-          scrollbarHeight: this.state.scrollbarHeight,
-          newscrollbarHeight: nextState.scrollbarHeight
-        });
+        if (!noTable) {
+          console.table({
+            children: this.props.children !== nextProps.children,
+            stickyTopHeight: this.state.stickyTopHeight !== nextState.stickyTopHeight,
+            stickyBottomHeight: this.state.stickyBottomHeight !== nextState.stickyBottomHeight,
+            scrollbarWidth: this.state.scrollbarWidth !== nextState.scrollbarWidth,
+            scrollbarHeight: this.state.scrollbarHeight !== nextState.scrollbarHeight,
+            initialScrollPosition: this.props.initialScrollPosition !== nextProps.initialScrollPosition,
+            className: this.props.className !== nextProps.className
+          });
+          console.table({
+            stickyTopHeight: this.state.stickyTopHeight,
+            newStickyTopHeight: nextState.stickyTopHeight,
+            stickyBottomHeight: this.state.stickyBottomHeight,
+            newstickyBottomHeight: nextState.stickyBottomHeight,
+            scrollbarWidth: this.state.scrollbarWidth,
+            newscrollbarWidth: nextState.scrollbarWidth,
+            scrollbarHeight: this.state.scrollbarHeight,
+            newscrollbarHeight: nextState.scrollbarHeight
+          });
+        }
       }
     }
     return (

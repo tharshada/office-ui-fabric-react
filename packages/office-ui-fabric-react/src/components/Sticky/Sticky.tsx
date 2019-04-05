@@ -4,6 +4,7 @@ import { BaseComponent } from '../../Utilities';
 import { IStickyProps, StickyPositionType } from './Sticky.types';
 import { IScrollablePaneContext } from '../ScrollablePane/ScrollablePane.base';
 const myDebug = true;
+const noTable = false;
 export interface IStickyState {
   isStickyTop: boolean;
   isStickyBottom: boolean;
@@ -161,17 +162,18 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
         _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)) as boolean;
       if (shouldUpdate) {
         console.log('Sticky shouldUpdate', { stickyClassName: this.props.stickyClassName });
-        console.table({
-          isStickyTop: isStickyTop !== nextState.isStickyTop,
-          isStickyBottom: isStickyBottom !== nextState.isStickyBottom,
-          stickyPosition: this.props.stickyPosition !== nextProps.stickyPosition,
-          children: this.props.children !== nextProps.children,
-          distanceFromTop: distanceFromTop !== nextState.distanceFromTop,
-          _stickyContentTop: _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop),
-          _stickyContentBottom: _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom),
-          _placeHolder: _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)
-        });
-
+        if (!noTable) {
+          console.table({
+            isStickyTop: isStickyTop !== nextState.isStickyTop,
+            isStickyBottom: isStickyBottom !== nextState.isStickyBottom,
+            stickyPosition: this.props.stickyPosition !== nextProps.stickyPosition,
+            children: this.props.children !== nextProps.children,
+            distanceFromTop: distanceFromTop !== nextState.distanceFromTop,
+            _stickyContentTop: _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop),
+            _stickyContentBottom: _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom),
+            _placeHolder: _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)
+          });
+        }
         console.log({ state: this.state, nextState: nextState });
       }
     }
