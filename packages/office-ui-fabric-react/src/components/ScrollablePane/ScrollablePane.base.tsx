@@ -4,6 +4,8 @@ import { BaseComponent, classNamesFunction, divProperties, getNativeProps, getRT
 import { IScrollablePane, IScrollablePaneProps, IScrollablePaneStyles, IScrollablePaneStyleProps } from './ScrollablePane.types';
 import { Sticky } from '../../Sticky';
 
+const myDebug = true;
+const noTable = false;
 export interface IScrollablePaneContext {
   scrollablePane?: {
     subscribe: (handler: (container: HTMLElement, stickyContainer: HTMLElement) => void) => void;
@@ -87,6 +89,9 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   }
 
   public componentDidMount() {
+    if (myDebug) {
+      console.log('ScrollablePane DidMount Started');
+    }
     const { initialScrollPosition } = this.props;
     this._events.on(this.contentContainer, 'scroll', this._onScroll);
     this._events.on(window, 'resize', this._onWindowResize);
@@ -151,19 +156,73 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
         });
       }
     }
+    if (myDebug) {
+      console.log('ScrollablePane DidMount Done');
+    }
   }
 
   public componentWillUnmount() {
+    if (myDebug) {
+      console.log('ScrollablePane UnMount Started');
+    }
     this._events.off(this.contentContainer);
     this._events.off(window);
 
     if (this._mutationObserver) {
       this._mutationObserver.disconnect();
     }
+    if (myDebug) {
+      console.log('ScrollablePane UnMount Done');
+    }
   }
 
   // Only updates if props/state change, just to prevent excessive setState with updateStickyRefHeights
   public shouldComponentUpdate(nextProps: IScrollablePaneProps, nextState: IScrollablePaneState): boolean {
+    if (myDebug) {
+      if (
+        this.props.children !== nextProps.children ||
+        this.props.initialScrollPosition !== nextProps.initialScrollPosition ||
+        this.props.className !== nextProps.className ||
+        this.state.stickyTopHeight !== nextState.stickyTopHeight ||
+        this.state.stickyBottomHeight !== nextState.stickyBottomHeight ||
+        this.state.scrollbarWidth !== nextState.scrollbarWidth ||
+        this.state.scrollbarHeight !== nextState.scrollbarHeight
+      ) {
+        console.log(
+          'ScrollablePane shouldUpdate',
+          this.props.children !== nextProps.children ||
+            this.props.initialScrollPosition !== nextProps.initialScrollPosition ||
+            this.props.className !== nextProps.className ||
+            this.state.stickyTopHeight !== nextState.stickyTopHeight ||
+            this.state.stickyBottomHeight !== nextState.stickyBottomHeight ||
+            this.state.scrollbarWidth !== nextState.scrollbarWidth ||
+            this.state.scrollbarHeight !== nextState.scrollbarHeight
+        );
+
+        if (!noTable) {
+          console.table({
+            children: this.props.children !== nextProps.children,
+            stickyTopHeight: this.state.stickyTopHeight !== nextState.stickyTopHeight,
+            stickyBottomHeight: this.state.stickyBottomHeight !== nextState.stickyBottomHeight,
+            scrollbarWidth: this.state.scrollbarWidth !== nextState.scrollbarWidth,
+            scrollbarHeight: this.state.scrollbarHeight !== nextState.scrollbarHeight,
+            initialScrollPosition: this.props.initialScrollPosition !== nextProps.initialScrollPosition,
+            className: this.props.className !== nextProps.className
+          });
+
+          console.table({
+            stickyTopHeight: this.state.stickyTopHeight,
+            newStickyTopHeight: nextState.stickyTopHeight,
+            stickyBottomHeight: this.state.stickyBottomHeight,
+            newstickyBottomHeight: nextState.stickyBottomHeight,
+            scrollbarWidth: this.state.scrollbarWidth,
+            newscrollbarWidth: nextState.scrollbarWidth,
+            scrollbarHeight: this.state.scrollbarHeight,
+            newscrollbarHeight: nextState.scrollbarHeight
+          });
+        }
+      }
+    }
     return (
       this.props.children !== nextProps.children ||
       this.props.initialScrollPosition !== nextProps.initialScrollPosition ||
@@ -176,6 +235,9 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   }
 
   public componentDidUpdate(prevProps: IScrollablePaneProps, prevState: IScrollablePaneState) {
+    if (myDebug) {
+      console.log('ScrollablePane DidUpdate Started');
+    }
     const initialScrollPosition = this.props.initialScrollPosition;
     if (this.contentContainer && typeof initialScrollPosition === 'number' && prevProps.initialScrollPosition !== initialScrollPosition) {
       this.contentContainer.scrollTop = initialScrollPosition;
@@ -187,6 +249,9 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     }
 
     this._async.setTimeout(this._onWindowResize, 0);
+    if (myDebug) {
+      console.log('ScrollablePane DidUpdate Done');
+    }
   }
 
   public render(): JSX.Element {
@@ -197,7 +262,9 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
       className,
       scrollbarVisibility: this.props.scrollbarVisibility
     });
-
+    if (myDebug) {
+      console.log('ScrollablePane render');
+    }
     return (
       <div {...getNativeProps(this.props, divProperties)} ref={this._root} className={classNames.root}>
         <div ref={this._contentContainer} className={classNames.contentContainer} data-is-scrollable={true}>

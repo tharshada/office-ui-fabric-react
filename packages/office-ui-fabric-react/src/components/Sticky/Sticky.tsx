@@ -4,6 +4,8 @@ import { BaseComponent } from '../../Utilities';
 import { IStickyProps, StickyPositionType } from './Sticky.types';
 import { IScrollablePaneContext } from '../ScrollablePane/ScrollablePane.base';
 
+const myDebug = true;
+const noTable = false;
 export interface IStickyState {
   isStickyTop: boolean;
   isStickyBottom: boolean;
@@ -83,6 +85,9 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
   };
 
   public componentDidMount(): void {
+    if (myDebug) {
+      console.log('Sticky DidMount Started', { stickyClassName: this.props.stickyClassName });
+    }
     const { scrollablePane } = this.context;
 
     if (!scrollablePane) {
@@ -91,9 +96,15 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
     scrollablePane.subscribe(this._onScrollEvent);
     scrollablePane.addSticky(this);
+    if (myDebug) {
+      console.log('Sticky DidMount Done', { stickyClassName: this.props.stickyClassName });
+    }
   }
 
   public componentWillUnmount(): void {
+    if (myDebug) {
+      console.log('Sticky UnMount Started', { stickyClassName: this.props.stickyClassName });
+    }
     const { scrollablePane } = this.context;
 
     if (!scrollablePane) {
@@ -102,9 +113,15 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
     scrollablePane.unsubscribe(this._onScrollEvent);
     scrollablePane.removeSticky(this);
+    if (myDebug) {
+      console.log('Sticky UnMount Done', { stickyClassName: this.props.stickyClassName });
+    }
   }
 
   public componentDidUpdate(prevProps: IStickyProps, prevState: IStickyState): void {
+    if (myDebug) {
+      console.log('Sticky DidUpdate Started', { stickyClassName: this.props.stickyClassName });
+    }
     const { scrollablePane } = this.context;
 
     if (!scrollablePane) {
@@ -125,6 +142,9 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       // Sync Sticky scroll position with content container on each update
       scrollablePane.syncScrollSticky(this);
     }
+    if (myDebug) {
+      console.log('Sticky DidUpdate Done', { stickyClassName: this.props.stickyClassName });
+    }
   }
 
   public shouldComponentUpdate(nextProps: IStickyProps, nextState: IStickyState): boolean {
@@ -133,7 +153,32 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     }
 
     const { isStickyTop, isStickyBottom, distanceFromTop } = this.state;
-
+    if (myDebug) {
+      const shouldUpdate = (isStickyTop !== nextState.isStickyTop ||
+        isStickyBottom !== nextState.isStickyBottom ||
+        this.props.stickyPosition !== nextProps.stickyPosition ||
+        this.props.children !== nextProps.children ||
+        distanceFromTop !== nextState.distanceFromTop ||
+        _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop) ||
+        _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom) ||
+        _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)) as boolean;
+      if (shouldUpdate) {
+        console.log('Sticky shouldUpdate', { stickyClassName: this.props.stickyClassName });
+        if (!noTable) {
+          console.table({
+            isStickyTop: isStickyTop !== nextState.isStickyTop,
+            isStickyBottom: isStickyBottom !== nextState.isStickyBottom,
+            stickyPosition: this.props.stickyPosition !== nextProps.stickyPosition,
+            children: this.props.children !== nextProps.children,
+            distanceFromTop: distanceFromTop !== nextState.distanceFromTop,
+            _stickyContentTop: _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop),
+            _stickyContentBottom: _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom),
+            _placeHolder: _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)
+          });
+        }
+        console.log({ state: this.state, nextState: nextState });
+      }
+    }
     return (isStickyTop !== nextState.isStickyTop ||
       isStickyBottom !== nextState.isStickyBottom ||
       this.props.stickyPosition !== nextProps.stickyPosition ||
@@ -151,7 +196,9 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     if (!this.context.scrollablePane) {
       return <div>{this.props.children}</div>;
     }
-
+    if (myDebug) {
+      console.log('Sticky render', { stickyClassName: stickyClassName, state: this.state });
+    }
     return (
       <div ref={this._root}>
         {this.canStickyTop && (
