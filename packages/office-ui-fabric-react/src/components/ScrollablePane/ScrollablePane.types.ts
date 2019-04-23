@@ -84,10 +84,6 @@ export interface IScrollablePaneStyles {
    */
   stickyBelow: IStyle;
   /**
-   * Style set for the stickyBelowItems element.
-   */
-  stickyBelowItems: IStyle;
-  /**
    * Style set for the contentContainer element.
    */
   contentContainer: IStyle;

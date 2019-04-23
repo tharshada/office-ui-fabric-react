@@ -55,15 +55,6 @@ export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyl
         }
       },
       AboveAndBelowStyles
-    ],
-    stickyBelowItems: [
-      {
-        bottom: 0
-      },
-      AboveAndBelowStyles,
-      {
-        width: '100%'
-      }
     ]
   };
 };
