@@ -8800,7 +8800,7 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     // (undocumented)
     readonly root: HTMLDivElement | null;
     // (undocumented)
-    setDistanceFromTop(container: HTMLDivElement): void;
+    setDistanceFromTop(container: HTMLDivElement | null, footerStickyContainer?: HTMLDivElement | null): void;
     // (undocumented)
     shouldComponentUpdate(nextProps: IStickyProps, nextState: IStickyState): boolean;
     // (undocumented)

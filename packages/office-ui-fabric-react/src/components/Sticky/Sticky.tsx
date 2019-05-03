@@ -189,9 +189,8 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     }
   }
 
-  public setDistanceFromTop(container: HTMLDivElement): void {
-    const distanceFromTop = this._getNonStickyDistanceFromTop(container);
-    this.setState({ distanceFromTop: distanceFromTop });
+  public setDistanceFromTop(container: HTMLDivElement | null, footerStickyContainer?: HTMLDivElement | null): void {
+    this._onScrollEvent(container, footerStickyContainer);
   }
 
   private _getContentStyles(isSticky: boolean): React.CSSProperties {
@@ -246,8 +245,8 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     }
   }
 
-  private _onScrollEvent = (container: HTMLElement, footerStickyContainer: HTMLElement): void => {
-    if (this.root && this.nonStickyContent) {
+  private _onScrollEvent = (container: HTMLElement | null, footerStickyContainer?: HTMLElement | null): void => {
+    if (this.root && this.nonStickyContent && container) {
       const distanceFromTop = this._getNonStickyDistanceFromTop(container);
       let isStickyTop = false;
       let isStickyBottom = false;
@@ -258,7 +257,7 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       }
 
       // Can sticky bottom if the scrollablePane - total sticky footer height is smaller than the sticky's distance from the top of the pane
-      if (this.canStickyBottom && container.clientHeight - footerStickyContainer.offsetHeight <= distanceFromTop) {
+      if (footerStickyContainer && this.canStickyBottom && container.clientHeight - footerStickyContainer.offsetHeight <= distanceFromTop) {
         isStickyBottom =
           distanceFromTop - Math.floor(container.scrollTop) >= this._getStickyDistanceFromTopForFooter(container, footerStickyContainer);
       }
