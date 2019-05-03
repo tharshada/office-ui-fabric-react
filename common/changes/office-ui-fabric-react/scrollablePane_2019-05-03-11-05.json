@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "office-ui-fabric-react",
-      "comment": "scrollablePane listen to 'scroll' & 'resize'",
+      "comment": "scrollablePane listen to 'scroll' & 'resize' events & observes mutations, if at least one sticky component is mounted.",
       "type": "patch"
     }
   ],
