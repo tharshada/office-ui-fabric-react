@@ -29,6 +29,8 @@ export interface IStickyProps extends React.Props<Sticky> {
    * @defaultvalue true
    */
   isScrollSynced?: boolean;
+
+  horizontalStickyClassNames?: string;
 }
 
 export enum StickyPositionType {
