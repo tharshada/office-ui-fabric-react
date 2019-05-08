@@ -29,8 +29,22 @@ export interface IStickyProps extends React.Props<Sticky> {
    * @defaultvalue true
    */
   isScrollSynced?: boolean;
+
+  /**
+   * If it is other than default, stickyPosition should either be 'Top' or 'Bottom'
+   * Best Practices: use same stickyBehavior Type for all stickies with same stickyPosition
+   */
+  stickyBehavior?: IStickyBehavior;
 }
 
+export interface IStickyBehavior {
+  type: StickyBehaviorType;
+  order: number;
+}
+export enum StickyBehaviorType {
+  StickyOnScroll = 1,
+  StickyAlways = 2
+}
 export enum StickyPositionType {
   Both = 0,
   Header = 1,

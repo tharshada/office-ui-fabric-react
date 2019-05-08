@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { BaseComponent } from '../../Utilities';
-import { IStickyProps, StickyPositionType } from './Sticky.types';
+import { IStickyProps, StickyPositionType, StickyBehaviorType } from './Sticky.types';
 import { IScrollablePaneContext } from '../ScrollablePane/ScrollablePane.base';
 
 export interface IStickyState {
@@ -73,9 +73,9 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   public syncScroll = (container: HTMLElement): void => {
     const { nonStickyContent } = this;
-
-    if (nonStickyContent && this.props.isScrollSynced) {
-      nonStickyContent.scrollLeft = container.scrollLeft;
+    const { scrollablePane } = this.context;
+    if (nonStickyContent && this.props.isScrollSynced && scrollablePane) {
+      nonStickyContent.scrollLeft = scrollablePane.getScrollPosition(true);
     }
   };
 
@@ -109,19 +109,18 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     }
 
     const { isStickyBottom, isStickyTop, distanceFromTop } = this.state;
-    let syncScroll: boolean = false;
+
     if (prevState.distanceFromTop !== distanceFromTop) {
       scrollablePane.sortSticky(this, true /*sortAgain*/);
-      syncScroll = true;
     }
     if (prevState.isStickyTop !== isStickyTop || prevState.isStickyBottom !== isStickyBottom) {
       if (this._activeElement) {
         this._activeElement.focus();
       }
       scrollablePane.updateStickyRefHeights();
-      syncScroll = true;
     }
-    if (syncScroll) {
+    // horizontal scroll has to be synced only if component is sticky
+    if ((isStickyBottom || isStickyTop) && scrollablePane.getScrollPosition(true)) {
       // Sync Sticky scroll position with content container on each update
       scrollablePane.syncScrollSticky(this);
     }
@@ -247,37 +246,54 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
   }
 
   private _onScrollEvent = (container: HTMLElement, footerStickyContainer: HTMLElement): void => {
+    const { stickyBehavior, stickyPosition } = this.props;
     if (this.root && this.nonStickyContent) {
-      const distanceFromTop = this._getNonStickyDistanceFromTop(container);
-      let isStickyTop = false;
-      let isStickyBottom = false;
+      if (stickyBehavior && stickyBehavior.type === StickyBehaviorType.StickyAlways) {
+        // 1. ScrollablePane is mounted and has called notifySubscriber
+        // 2. stickyAlways has to re-render if mutation could 've affected it's offsetHeight.
 
-      if (this.canStickyTop) {
-        const distanceToStickTop = distanceFromTop - this._getStickyDistanceFromTop();
-        isStickyTop = distanceToStickTop < container.scrollTop;
-      }
+        // stickyAlways doesn't apply to StickyPosition.Both
+        const isStickyTop = stickyPosition === StickyPositionType.Header;
+        const isStickyBottom = stickyPosition === StickyPositionType.Footer;
 
-      // Can sticky bottom if the scrollablePane - total sticky footer height is smaller than the sticky's distance from the top of the pane
-      if (this.canStickyBottom && container.clientHeight - footerStickyContainer.offsetHeight <= distanceFromTop) {
-        isStickyBottom =
-          distanceFromTop - Math.floor(container.scrollTop) >= this._getStickyDistanceFromTopForFooter(container, footerStickyContainer);
-      }
-
-      if (
-        document.activeElement &&
-        this.nonStickyContent.contains(document.activeElement) &&
-        (this.state.isStickyTop !== isStickyTop || this.state.isStickyBottom !== isStickyBottom)
-      ) {
-        this._activeElement = document.activeElement as HTMLElement;
+        this.setState({
+          isStickyBottom: isStickyBottom,
+          isStickyTop: isStickyTop,
+          distanceFromTop: 0 // must so that sorting happens.
+        });
       } else {
-        this._activeElement = undefined;
-      }
+        const distanceFromTop = this._getNonStickyDistanceFromTop(container);
+        let isStickyTop = false;
+        let isStickyBottom = false;
 
-      this.setState({
-        isStickyTop: this.canStickyTop && isStickyTop,
-        isStickyBottom: isStickyBottom,
-        distanceFromTop: distanceFromTop
-      });
+        if (this.canStickyTop) {
+          const distanceToStickTop = distanceFromTop - this._getStickyDistanceFromTop();
+          isStickyTop = distanceToStickTop < container.scrollTop;
+        }
+
+        // Can sticky bottom if the scrollablePane -
+        // total sticky footer height is smaller than the sticky's distance from the top of the pane
+        if (this.canStickyBottom && container.clientHeight - footerStickyContainer.offsetHeight <= distanceFromTop) {
+          isStickyBottom =
+            distanceFromTop - Math.floor(container.scrollTop) >= this._getStickyDistanceFromTopForFooter(container, footerStickyContainer);
+        }
+
+        if (
+          document.activeElement &&
+          this.nonStickyContent.contains(document.activeElement) &&
+          (this.state.isStickyTop !== isStickyTop || this.state.isStickyBottom !== isStickyBottom)
+        ) {
+          this._activeElement = document.activeElement as HTMLElement;
+        } else {
+          this._activeElement = undefined;
+        }
+
+        this.setState({
+          isStickyTop: this.canStickyTop && isStickyTop,
+          isStickyBottom: isStickyBottom,
+          distanceFromTop: distanceFromTop
+        });
+      }
     }
   };
 
