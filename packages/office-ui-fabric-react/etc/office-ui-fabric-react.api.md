@@ -6202,6 +6202,7 @@ export interface IScrollablePaneContext {
         notifySubscribers: (sort?: boolean) => void;
         syncScrollSticky: (sticky: Sticky) => void;
         getScrollPosition: (horizontal?: boolean) => number;
+        getUserInteractionStatus: () => boolean;
     };
 }
 
@@ -6973,6 +6974,7 @@ export interface IStickyContext {
 export interface IStickyProps extends React.Props<Sticky> {
     componentRef?: IRefObject<IStickyProps>;
     isScrollSynced?: boolean;
+    placeHolder?: boolean;
     stickyBackgroundColor?: string;
     stickyBehavior?: IStickyBehavior;
     stickyClassName?: string;
@@ -8387,6 +8389,8 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     // (undocumented)
     getScrollPosition: (horizontal?: boolean | undefined) => number;
     // (undocumented)
+    getUserInteractionStatus: () => boolean;
+    // (undocumented)
     notifySubscribers: () => void;
     // (undocumented)
     removeSticky: (sticky: Sticky) => void;
@@ -8412,7 +8416,7 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     unsubscribe: (handler: Function) => void;
     // (undocumented)
     updateStickyRefHeights: () => void;
-}
+    }
 
 // @public (undocumented)
 export const ScrollbarVisibility: {

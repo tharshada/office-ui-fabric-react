@@ -138,14 +138,12 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       this.props.stickyPosition !== nextProps.stickyPosition ||
       this.props.children !== nextProps.children ||
       distanceFromTop !== nextState.distanceFromTop ||
-      _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop) ||
-      _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom) ||
-      _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)) as boolean;
+      this._isOffsetHeightDifferent()) as boolean;
   }
 
   public render(): JSX.Element {
     const { isStickyTop, isStickyBottom } = this.state;
-    const { stickyClassName, children } = this.props;
+    const { stickyClassName, children, placeHolder } = this.props;
 
     if (!this.context.scrollablePane) {
       return <div>{this.props.children}</div>;
@@ -155,12 +153,24 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       <div ref={this._root}>
         {this.canStickyTop && (
           <div ref={this._stickyContentTop} aria-hidden={!isStickyTop} style={{ pointerEvents: isStickyTop ? 'auto' : 'none' }}>
-            <div style={this._getStickyPlaceholderHeight(isStickyTop)} />
+            {placeHolder ? (
+              <div className={isStickyTop ? stickyClassName : undefined} style={this._getNewStyles(isStickyTop)}>
+                {children}
+              </div>
+            ) : (
+              <div style={this._getStickyPlaceholderHeight(isStickyTop)} />
+            )}
           </div>
         )}
         {this.canStickyBottom && (
           <div ref={this._stickyContentBottom} aria-hidden={!isStickyBottom} style={{ pointerEvents: isStickyBottom ? 'auto' : 'none' }}>
-            <div style={this._getStickyPlaceholderHeight(isStickyBottom)} />
+            {placeHolder ? (
+              <div className={isStickyBottom ? stickyClassName : undefined} style={this._getNewStyles(isStickyBottom)}>
+                {children}
+              </div>
+            ) : (
+              <div style={this._getStickyPlaceholderHeight(isStickyBottom)} />
+            )}
           </div>
         )}
         <div style={this._getNonStickyPlaceholderHeightAndWidth()} ref={this._placeHolder}>
@@ -193,10 +203,25 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     this.setState({ distanceFromTop: distanceFromTop });
   }
 
+  private _isOffsetHeightDifferent(): boolean {
+    return this.props.placeHolder
+      ? false
+      : _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop) ||
+          _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom) ||
+          _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder);
+  }
   private _getContentStyles(isSticky: boolean): React.CSSProperties {
     return {
       backgroundColor: this.props.stickyBackgroundColor || this._getBackground(),
       overflow: isSticky ? 'hidden' : ''
+    };
+  }
+
+  private _getNewStyles(isSticky: boolean): React.CSSProperties {
+    return {
+      visibility: isSticky ? 'visible' : 'hidden',
+      backgroundColor: this.props.stickyBackgroundColor || this._getBackground(),
+      overflow: 'hidden'
     };
   }
 
@@ -210,7 +235,7 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   private _getNonStickyPlaceholderHeightAndWidth(): React.CSSProperties {
     const { isStickyTop, isStickyBottom } = this.state;
-    if (isStickyTop || isStickyBottom) {
+    if ((isStickyTop || isStickyBottom) && !this.props.placeHolder) {
       let height = 0,
         width = 0;
       // Why is placeHolder width needed?
@@ -247,7 +272,8 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
 
   private _onScrollEvent = (container: HTMLElement, footerStickyContainer: HTMLElement): void => {
     const { stickyBehavior, stickyPosition } = this.props;
-    if (this.root && this.nonStickyContent) {
+    const { scrollablePane } = this.context;
+    if (this.root && this.nonStickyContent && scrollablePane) {
       if (stickyBehavior && stickyBehavior.type === StickyBehaviorType.StickyAlways) {
         // 1. ScrollablePane is mounted and has called notifySubscriber
         // 2. stickyAlways has to re-render if mutation could 've affected it's offsetHeight.
@@ -260,6 +286,20 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
           isStickyBottom: isStickyBottom,
           isStickyTop: isStickyTop,
           distanceFromTop: 0 // must so that sorting happens.
+        });
+      } else if (
+        stickyBehavior &&
+        stickyBehavior.type === StickyBehaviorType.StickyOnScroll &&
+        !scrollablePane.getUserInteractionStatus()
+      ) {
+        // user interaction has not started
+        // 1. ScrollablePane is mounted and has called notifySubscriber, sort is required.
+        // 2. stickyAlways has to re-render if mutation could 've affected it's offsetHeight.
+        const { isStickyBottom, isStickyTop } = this.state;
+        scrollablePane.sortSticky(this, false);
+        this.setState({
+          isStickyBottom: isStickyBottom,
+          isStickyTop: isStickyTop
         });
       } else {
         const distanceFromTop = this._getNonStickyDistanceFromTop(container);

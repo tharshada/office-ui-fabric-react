@@ -35,6 +35,9 @@ export interface IStickyProps extends React.Props<Sticky> {
    * Best Practices: use same stickyBehavior Type for all stickies with same stickyPosition
    */
   stickyBehavior?: IStickyBehavior;
+
+  /**If true, it uses actual element as placeholder */
+  placeHolder?: boolean;
 }
 
 export interface IStickyBehavior {
