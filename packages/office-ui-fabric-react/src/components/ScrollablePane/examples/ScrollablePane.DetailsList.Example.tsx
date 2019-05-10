@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
+// import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -13,7 +13,7 @@ import {
 import { IRenderFunction } from 'office-ui-fabric-react/lib/Utilities';
 import { TooltipHost, ITooltipHostProps } from 'office-ui-fabric-react/lib/Tooltip';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
-import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
+import { Sticky, StickyPositionType, IStickyBehavior, StickyBehaviorType } from 'office-ui-fabric-react/lib/Sticky';
 import { MarqueeSelection } from 'office-ui-fabric-react/lib/MarqueeSelection';
 import { SelectionMode } from 'office-ui-fabric-react/lib/utilities/selection/index';
 import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
@@ -101,14 +101,17 @@ export class ScrollablePaneDetailsListExample extends React.Component<{}, IScrol
 
   public render(): JSX.Element {
     const { items } = this.state;
-
+    const title: IStickyBehavior = {
+      type: StickyBehaviorType.StickyOnScroll,
+      order: 1
+    };
     return (
       <div className={classNames.wrapper}>
-        <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-          <Sticky stickyPosition={StickyPositionType.Header}>
+        <ScrollablePane scrollbarVisibility={ScrollbarVisibility.always}>
+          {/* <Sticky stickyPosition={StickyPositionType.Header}>
             <TextField className={classNames.filter} label="Filter by name:" onChange={this._onFilterChange} />
-          </Sticky>
-          <Sticky stickyPosition={StickyPositionType.Header}>
+          </Sticky> */}
+          <Sticky stickyPosition={StickyPositionType.Header} stickyBehavior={title} placeHolder={true}>
             <h1 className={classNames.header}>Item list</h1>
           </Sticky>
           <MarqueeSelection selection={this._selection}>
@@ -132,11 +135,11 @@ export class ScrollablePaneDetailsListExample extends React.Component<{}, IScrol
     );
   }
 
-  private _onFilterChange = (ev: React.FormEvent<HTMLElement>, text: string) => {
-    this.setState({
-      items: text ? this._allItems.filter((item: IScrollablePaneDetailsListExampleItem) => hasText(item, text)) : this._allItems
-    });
-  };
+  // private _onFilterChange = (ev: React.FormEvent<HTMLElement>, text: string) => {
+  //   this.setState({
+  //     items: text ? this._allItems.filter((item: IScrollablePaneDetailsListExampleItem) => hasText(item, text)) : this._allItems
+  //   });
+  // };
 }
 
 function _onItemInvoked(item: IScrollablePaneDetailsListExampleItem): void {
@@ -144,8 +147,12 @@ function _onItemInvoked(item: IScrollablePaneDetailsListExampleItem): void {
 }
 
 function onRenderDetailsHeader(props: IDetailsHeaderProps, defaultRender?: IRenderFunction<IDetailsHeaderProps>): JSX.Element {
+  const title: IStickyBehavior = {
+    type: StickyBehaviorType.StickyOnScroll,
+    order: 2
+  };
   return (
-    <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true}>
+    <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true} stickyBehavior={title} placeHolder={true}>
       {defaultRender!({
         ...props,
         onRenderColumnHeaderTooltip: (tooltipHostProps: ITooltipHostProps) => <TooltipHost {...tooltipHostProps} />
@@ -155,8 +162,12 @@ function onRenderDetailsHeader(props: IDetailsHeaderProps, defaultRender?: IRend
 }
 
 function onRenderDetailsFooter(props: IDetailsFooterProps, defaultRender?: IRenderFunction<IDetailsFooterProps>): JSX.Element {
+  const title: IStickyBehavior = {
+    type: StickyBehaviorType.StickyAlways,
+    order: 1
+  };
   return (
-    <Sticky stickyPosition={StickyPositionType.Footer} isScrollSynced={true}>
+    <Sticky stickyPosition={StickyPositionType.Footer} isScrollSynced={true} stickyBehavior={title} placeHolder={true}>
       <div className={classNames.row}>
         <DetailsRow
           columns={props.columns}
@@ -171,9 +182,9 @@ function onRenderDetailsFooter(props: IDetailsFooterProps, defaultRender?: IRend
   );
 }
 
-function hasText(item: IScrollablePaneDetailsListExampleItem, text: string): boolean {
-  return `${item.test1}|${item.test2}|${item.test3}|${item.test4}|${item.test5}|${item.test6}`.indexOf(text) > -1;
-}
+// function hasText(item: IScrollablePaneDetailsListExampleItem, text: string): boolean {
+//   return `${item.test1}|${item.test2}|${item.test3}|${item.test4}|${item.test5}|${item.test6}`.indexOf(text) > -1;
+// }
 
 const LOREM_IPSUM = (
   'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut ' +
