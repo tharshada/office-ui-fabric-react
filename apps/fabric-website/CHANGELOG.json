@@ -2,6 +2,64 @@
   "name": "@uifabric/fabric-website",
   "entries": [
     {
+      "version": "6.18.4",
+      "tag": "@uifabric/fabric-website_v6.18.4",
+      "date": "Thu, 16 May 2019 12:21:56 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add versioned release notes and demo section",
+            "author": "Kevin Coughlin <706967+KevinTCoughlin@users.noreply.github.com>",
+            "commit": "d80271e480c1ab7e986d9dd547be7f5a9dae621e"
+          }
+        ]
+      }
+    },
+    {
+      "version": "6.18.3",
+      "tag": "@uifabric/fabric-website_v6.18.3",
+      "date": "Thu, 16 May 2019 05:28:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Adding mobile examples and docs for Button.",
+            "author": "lynamemi <lynam.emily@gmail.com>",
+            "commit": "4382ed8bf9bc3793fe0511fdfae36a51b02f2ebb"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@uifabric/file-type-icons\" from `^6.4.9` to `^6.4.10`"
+          },
+          {
+            "comment": "Updating dependency \"office-ui-fabric-react\" from `^6.182.0` to `^6.182.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "6.18.2",
+      "tag": "@uifabric/fabric-website_v6.18.2",
+      "date": "Wed, 15 May 2019 12:31:44 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Add 404 page",
+            "author": "Jordan Janzen <jordancjanzen@gmail.com>",
+            "commit": "1a7b6c65005dab8fbcc6fe21dbaa42ed042465eb"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@uifabric/example-app-base\" from `^6.20.1` to `^6.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"office-ui-fabric-react\" from `^6.181.1` to `^6.182.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "6.18.1",
       "tag": "@uifabric/fabric-website_v6.18.1",
       "date": "Tue, 14 May 2019 07:50:30 GMT",
