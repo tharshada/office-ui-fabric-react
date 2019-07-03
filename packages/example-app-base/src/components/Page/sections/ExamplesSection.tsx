@@ -2,18 +2,16 @@ import * as React from 'react';
 import { ExampleCard } from '../../ExampleCard/index';
 import { IExample, IPageSectionPropsWithSectionName } from '../Page.types';
 import * as styles from '../Page.module.scss';
-import { ICodeSnippetProps } from '../../CodeSnippet/index';
 
 export interface IExamplesSectionProps extends IPageSectionPropsWithSectionName {
   exampleKnobs?: React.ReactNode;
-  examples: IExample[];
+  // TODO: There seems to be a disparity between this type and IPageSectionProps as used in Page.tsx.
+  //        Making optional for now to workaround.
+  examples?: IExample[];
 }
 
 export const ExamplesSection: React.StatelessComponent<IExamplesSectionProps> = props => {
   const { className, examples, exampleKnobs, sectionName, readableSectionName, style, id } = props;
-  const codeHighlighterProps: ICodeSnippetProps = {
-    language: 'typescript'
-  };
 
   return (
     <div className={className} style={style}>
@@ -24,16 +22,15 @@ export const ExamplesSection: React.StatelessComponent<IExamplesSectionProps> = 
       </div>
       <div>
         {exampleKnobs && <div className={styles.subSection}>{exampleKnobs}</div>}
-        {examples.map((example: IExample) => {
-          const { view, ...exampleProps } = example;
-          return (
-            <div key={example.title + '-key'} className={styles.subSection}>
-              <ExampleCard {...exampleProps} codeHighlighterProps={codeHighlighterProps}>
-                {view}
-              </ExampleCard>
-            </div>
-          );
-        })}
+        {examples &&
+          examples.map((example: IExample) => {
+            const { view, ...exampleProps } = example;
+            return (
+              <div key={example.title + '-key'} className={styles.subSection}>
+                <ExampleCard {...exampleProps}>{view}</ExampleCard>
+              </div>
+            );
+          })}
       </div>
     </div>
   );

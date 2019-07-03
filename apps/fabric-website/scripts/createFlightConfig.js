@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { argv, logger } = require('@uifabric/build/just-task').just;
+const { argv, logger } = require('@uifabric/build').just;
 
 /**
  * A Task Function for Fabric Website that Generates a Manifest for Non-UHF "Internal" Site
@@ -48,7 +48,7 @@ module.exports.createPublicFlightConfigTask = function() {
 
     let configData = {
       version: process.env.BUILD_BUILDNUMBER || '0',
-      baseCDNUrl: path.join(argv().baseCDNUrl, process.env.BUILD_BUILDNUMBER) + '/',
+      baseCDNUrl: argv().baseCDNUrl,
       buildName: process.env.BUILD_DEFINITIONNAME || 'localbuild',
       createdDate: today
     };

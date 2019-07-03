@@ -1,6 +1,5 @@
 // tslint:disable:no-any
-import * as React from 'react';
-import { App as AppBase, IAppDefinition, IAppProps } from '@uifabric/example-app-base';
+import { IAppDefinition } from '@uifabric/example-app-base';
 
 export const AppDefinition: IAppDefinition = {
   appTitle: 'Fabric - React',
@@ -8,7 +7,13 @@ export const AppDefinition: IAppDefinition = {
   testPages: [],
   examplePages: [
     {
-      links: []
+      links: [
+        {
+          component: require<any>('./pages/StaticListPage').StaticListPage,
+          name: 'StaticList',
+          url: '#/StaticList'
+        }
+      ]
     }
   ],
   headerLinks: [
@@ -26,5 +31,3 @@ export const AppDefinition: IAppDefinition = {
     }
   ]
 };
-
-export const App = (props: IAppProps) => <AppBase appDefinition={AppDefinition} {...props} />;

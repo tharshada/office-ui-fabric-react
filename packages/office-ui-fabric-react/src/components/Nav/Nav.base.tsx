@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { ActionButton } from '../../Button';
+import { buttonStyles } from './Nav.styles';
 import { classNamesFunction, divProperties, getNativeProps, getWindow } from '../../Utilities';
 import { FocusZone, FocusZoneDirection } from '../../FocusZone';
-import { ActionButton } from '../../Button';
 import { Icon } from '../../Icon';
-import { buttonStyles } from './Nav.styles';
-import { INav, INavProps, INavLinkGroup, INavLink, INavStyles, INavStyleProps } from './Nav.types';
+import { INav, INavLink, INavLinkGroup, INavProps, INavStyleProps, INavStyles } from './Nav.types';
 
 // The number pixels per indentation level for Nav links.
 const _indentationSize = 14;
@@ -108,7 +108,7 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
 
   private _renderCompositeLink(link: INavLink, linkIndex: number, nestingLevel: number): React.ReactElement<{}> {
     const divProps: React.HTMLProps<HTMLDivElement> = { ...getNativeProps(link, divProperties, ['onClick']) };
-    const { styles, groups, theme } = this.props;
+    const { expandButtonAriaLabel, styles, groups, theme } = this.props;
     const classNames = getClassNames(styles!, {
       theme: theme!,
       isExpanded: !!link.isExpanded,
@@ -119,13 +119,15 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
       groups
     });
 
+    const finalExpandBtnAriaLabel = expandButtonAriaLabel ? `${link.name} ${expandButtonAriaLabel}` : link.name;
+
     return (
       <div {...divProps} key={link.key || linkIndex} className={classNames.compositeLink}>
         {link.links && link.links.length > 0 ? (
           <button
             className={classNames.chevronButton}
             onClick={this._onLinkExpandClicked.bind(this, link)}
-            aria-label={this.props.expandButtonAriaLabel}
+            aria-label={finalExpandBtnAriaLabel}
             aria-expanded={link.isExpanded ? 'true' : 'false'}
           >
             <Icon className={classNames.chevronIcon} iconName="ChevronDown" />

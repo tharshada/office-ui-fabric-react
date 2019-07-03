@@ -1,4 +1,6 @@
-# [@uifabric/lists](http://dev.microsoft.com/fabric)
+# @uifabric/lists
+
+**List components for [Office UI Fabric React](http://dev.microsoft.com/fabric)**
 
 ## Overview
 
@@ -10,7 +12,7 @@ Eventually, this will be a home for _all_ Fabric List controls, migrated in a ba
 - [DetailsList](https://developer.microsoft.com/en-us/fabric#/controls/web/detailslist)
 - [GroupedList](https://developer.microsoft.com/en-us/fabric#/controls/web/groupedlist)
 
-##### Lists components for Office UI Fabric React
+## Usage
 
 These are not production-ready components and **should never be used in product**. This space is useful for testing new components whose APIs might change before final release.
 
@@ -25,3 +27,10 @@ Once the Lists component graduates to a production release, the component will b
 ```js
 import { ComponentName } from 'office-ui-fabric-react';
 ```
+
+## Profiling
+
+Below are resources on using the React profiler and `<Profiler/>` component:
+
+- https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html
+- https://gist.github.com/bvaughn/60a883af01716a03a1b3285a1029be0c

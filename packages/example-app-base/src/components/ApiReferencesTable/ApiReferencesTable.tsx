@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IRenderFunction, getDocument } from 'office-ui-fabric-react/lib/Utilities';
+import { IRenderFunction } from 'office-ui-fabric-react/lib/Utilities';
 import {
   DetailsList,
   DetailsRow,
@@ -16,6 +16,7 @@ import { Text } from 'office-ui-fabric-react/lib/Text';
 import { ILinkToken } from 'office-ui-fabric-react/lib/common/DocPage.types';
 import { IApiInterfaceProperty, IApiEnumProperty, IMethod } from './ApiReferencesTableSet.types';
 import { Markdown } from '../Markdown/index';
+import { getCurrentUrl } from '../../utilities/getCurrentUrl';
 
 export interface IApiReferencesTableProps {
   title?: string;
@@ -126,8 +127,7 @@ export class ApiReferencesTable extends React.Component<IApiReferencesTableProps
       };
     }
 
-    const doc = getDocument();
-    this._baseUrl = doc ? document.location.href : '';
+    this._baseUrl = getCurrentUrl();
 
     this._defaultColumns = [
       {
@@ -479,18 +479,14 @@ export class ApiReferencesTable extends React.Component<IApiReferencesTableProps
             if (token.pageKind === 'References') {
               const referencePage = hash + token.pageKind.toLowerCase() + '/' + token.hyperlinkedPage.toLowerCase();
               href = '#' + referencePage + '#' + token.text;
-              if (cleanedSplit.length > 1) {
-                if (cleanedSplit[1] === referencePage) {
-                  newTab = false;
-                }
+              if (cleanedSplit.length > 1 && cleanedSplit[1] === referencePage) {
+                newTab = false;
               }
             } else {
               const componentPage = hash + token.hyperlinkedPage.toLowerCase();
               href = '#' + componentPage + '#' + token.text;
-              if (cleanedSplit.length > 1) {
-                if (cleanedSplit[1] === componentPage) {
-                  newTab = false;
-                }
+              if (cleanedSplit.length > 1 && cleanedSplit[1] === componentPage) {
+                newTab = false;
               }
             }
 

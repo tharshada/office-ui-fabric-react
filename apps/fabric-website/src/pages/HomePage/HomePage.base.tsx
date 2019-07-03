@@ -12,11 +12,12 @@ import {
   DirectionalHint,
   ActionButton,
   Stack,
-  IRawStyle
+  IRawStyle,
+  css
 } from 'office-ui-fabric-react';
 import { trackEvent, EventNames, getSiteArea, MarkdownHeader } from '@uifabric/example-app-base/lib/index2';
 import { platforms } from '../../SiteDefinition/SiteDefinition.platforms';
-import { AndroidLogo, AppleLogo, WebLogo, getParameterByName } from '../../utilities/index';
+import { AndroidLogo, AppleLogo, WebLogo } from '../../utilities/index';
 import { IHomePageProps, IHomePageStyles, IHomePageStyleProps } from './HomePage.types';
 import { monoFont } from './HomePage.styles';
 const reactPackageData = require<any>('office-ui-fabric-react/package.json');
@@ -49,15 +50,26 @@ const fabricUsageIcons = [
 
 const fabricVersionOptions: IContextualMenuItem[] = [
   {
-    key: '6',
-    text: 'Fabric 6',
+    key: '7',
+    text: 'Fabric 7',
     checked: true
+  },
+  {
+    key: '6',
+    text: 'Fabric 6'
   },
   {
     key: '5',
     text: 'Fabric 5'
   }
 ];
+
+interface IRenderLinkOptions {
+  disabled?: boolean;
+  isCTA?: boolean;
+  icon?: string;
+  dark?: boolean;
+}
 
 export interface IHomePageState {
   isMounted: boolean;
@@ -121,11 +133,11 @@ export class HomePageBase extends React.Component<IHomePageProps, IHomePageState
           </div>
           <div className={this._classNames.oneFourth}>
             <p>
-              Together, we’ve created Microsoft UI Fabric, a collection of UX frameworks you can use to build Fluent experiences that fit
-              seamlessly into a broad range of Microsoft products.
+              Together, we’ve created UI Fabric, a collection of UX frameworks you can use to build Fluent experiences that fit seamlessly
+              into a broad range of Microsoft products.
             </p>
             <p>Connect with the cross-platform styles, controls and resources you need to do amazing things.</p>
-            <p>{this._renderLink('#/get-started', 'Get started', false, true)}</p>
+            <p>{this._renderLink('#/get-started', 'Get started', { isCTA: true, dark: false })}</p>
           </div>
         </div>
       </section>
@@ -262,7 +274,7 @@ export class HomePageBase extends React.Component<IHomePageProps, IHomePageState
           <div className={this._classNames.oneFourth}>
             <h2 className={this._classNames.resourcesTitle}>Discover resources</h2>
             <p>Find design, inclusive and developer onboarding resources, and learn about how to become a contributor.</p>
-            <p>{this._renderLink('#/resources', 'See resources')}</p>
+            <p>{this._renderLink('#/resources', 'See resources', { dark: false })}</p>
           </div>
         </div>
       </section>
@@ -290,10 +302,11 @@ export class HomePageBase extends React.Component<IHomePageProps, IHomePageState
   };
 
   /**Renders a link with an icon */
-  private _renderLink = (url: string, text: React.ReactNode, disabled?: boolean, isCTA?: boolean, icon = 'Forward'): JSX.Element => {
+  private _renderLink = (url: string, text: React.ReactNode, options: IRenderLinkOptions = {}): JSX.Element => {
+    const { disabled, isCTA, icon = 'Forward', dark = true } = options;
     return (
       <Link
-        className={this._classNames.link}
+        className={css(this._classNames.link, dark && this._classNames.linkDark)}
         href={url}
         disabled={!!disabled}
         // tslint:disable-next-line jsx-no-lambda

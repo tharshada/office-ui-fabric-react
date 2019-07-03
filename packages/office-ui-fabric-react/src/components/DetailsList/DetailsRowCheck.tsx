@@ -8,14 +8,17 @@ import { getStyles } from './DetailsRowCheck.styles';
 import { IDetailsRowCheckStyleProps, IDetailsRowCheckStyles } from './DetailsRowCheck.types';
 import { classNamesFunction } from '../../Utilities';
 
-const getCheckClassNames = classNamesFunction<ICheckStyleProps, ICheckStyles>();
-const getClassNames = classNamesFunction<IDetailsRowCheckStyleProps, IDetailsRowCheckStyles>();
+const getCheckClassNames = classNamesFunction<ICheckStyleProps, ICheckStyles>({
+  disableCaching: true
+});
+const getClassNames = classNamesFunction<IDetailsRowCheckStyleProps, IDetailsRowCheckStyles>({
+  disableCaching: true
+});
 
 const DetailsRowCheckBase = (props: IDetailsRowCheckProps) => {
   const {
     isVisible = false,
     canSelect = false,
-    isSelected = false,
     anySelected = false,
     selected = false,
     isHeader = false,
@@ -28,8 +31,6 @@ const DetailsRowCheckBase = (props: IDetailsRowCheckProps) => {
     ...buttonProps
   } = props;
 
-  const isPressed = isSelected || selected;
-
   const checkStyles = getCheckStyles({ theme: theme! });
 
   const checkClassNames = getCheckClassNames(checkStyles, {
@@ -39,7 +40,7 @@ const DetailsRowCheckBase = (props: IDetailsRowCheckProps) => {
   const classNames = getClassNames(styles, {
     theme: theme!,
     canSelect,
-    selected: isPressed,
+    selected,
     anySelected,
     className,
     isHeader,
@@ -52,7 +53,7 @@ const DetailsRowCheckBase = (props: IDetailsRowCheckProps) => {
   };
 
   const detailsCheckboxProps: IDetailsCheckboxProps = {
-    checked: isPressed
+    checked: selected
   };
 
   return canSelect ? (
@@ -60,7 +61,7 @@ const DetailsRowCheckBase = (props: IDetailsRowCheckProps) => {
       {...buttonProps}
       role="checkbox"
       className={css(classNames.root, classNames.check, checkClassNames.checkHost)}
-      aria-checked={isPressed}
+      aria-checked={selected}
       data-selection-toggle={true}
       data-automationid="DetailsRowCheck"
     >

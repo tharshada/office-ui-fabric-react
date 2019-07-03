@@ -15,7 +15,7 @@ const getCellText = (item: any, column: IColumn): string => {
 };
 
 /**
- * Component for rendering a row's cells in a {@link DetailsList}.
+ * Component for rendering a row's cells in a `DetailsList`.
  *
  * {@docCategory DetailsList}
  */
@@ -24,12 +24,12 @@ export class DetailsRowFields extends React.PureComponent<IDetailsRowFieldsProps
     const {
       columns,
       columnStartIndex,
-      shimmer,
       rowClassNames,
       cellStyleProps = DEFAULT_CELL_STYLE_PROPS,
       item,
       itemIndex,
       onRenderItemColumn,
+      getCellValueKey,
       cellsByColumn
     } = this.props;
 
@@ -44,27 +44,28 @@ export class DetailsRowFields extends React.PureComponent<IDetailsRowFieldsProps
                 cellStyleProps.cellRightPadding +
                 (column.isPadded ? cellStyleProps.cellExtraRightPadding : 0);
 
-          const { onRender = onRenderItemColumn } = column;
+          const { onRender = onRenderItemColumn, getValueKey = getCellValueKey } = column;
           const cellContentsRender =
             cellsByColumn && column.key in cellsByColumn
               ? cellsByColumn[column.key]
-              : onRender && !shimmer
+              : onRender
               ? onRender(item, itemIndex, column)
               : getCellText(item, column);
 
+          // generate a key that auto-dirties when content changes, to force the container to re-render, to trigger animation
+          const key = getValueKey ? getValueKey(item, itemIndex, column) : column.key + itemIndex;
           return (
             <div
-              key={columnIndex}
+              key={key}
               role={column.isRowHeader ? 'rowheader' : 'gridcell'}
               aria-colindex={columnIndex + columnStartIndex + 1}
               className={css(
                 column.className,
                 column.isMultiline && rowClassNames.isMultiline,
                 column.isRowHeader && rowClassNames.isRowHeader,
-                column.isIconOnly && shimmer && rowClassNames.shimmerIconPlaceholder,
-                shimmer && rowClassNames.shimmer,
                 rowClassNames.cell,
-                column.isPadded ? rowClassNames.cellPadded : rowClassNames.cellUnpadded
+                column.isPadded ? rowClassNames.cellPadded : rowClassNames.cellUnpadded,
+                rowClassNames.cellAnimation
               )}
               style={{ width }}
               data-automationid="DetailsRowCell"

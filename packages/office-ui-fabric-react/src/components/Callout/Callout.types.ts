@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { IStyle, ITheme } from '../../Styling';
 import { DirectionalHint } from '../../common/DirectionalHint';
 import { IPoint, IRectangle, IStyleFunctionOrObject } from '../../Utilities';
@@ -7,7 +8,7 @@ import { ILayerProps } from '../../Layer';
 /**
  * {@docCategory Callout}
  */
-export type Target = Element | string | MouseEvent | IPoint | null;
+export type Target = Element | string | MouseEvent | IPoint | null | React.RefObject<Element>;
 
 /**
  * {@docCategory Callout}

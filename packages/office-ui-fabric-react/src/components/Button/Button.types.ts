@@ -289,11 +289,23 @@ export interface IButtonProps
   persistMenu?: boolean;
 
   /**
+   * Experimental prop that get passed into the menuButton that's rendered as part of
+   * split button. Anything passed in will likely need to have accompanying
+   * style changes.
+   */
+  splitButtonMenuProps?: IButtonProps;
+
+  /**
    * Style for the description text if applicable (for compound buttons.)
    * Deprecated, use `secondaryText` instead.
    * @deprecated Use `secondaryText` instead.
    */
   description?: IStyle;
+
+  /**
+   * yet unknown docs
+   */
+  defaultRender?: any;
 }
 
 /**
@@ -548,6 +560,12 @@ export interface IButtonStyles {
    * for a split button.
    */
   splitButtonDivider?: IStyle;
+
+  /**
+   * Style override for the divider element that appears between the button and menu button
+   * for a split button in a disabled state.
+   */
+  splitButtonDividerDisabled?: IStyle;
 
   /**
    * Style override for the SplitButton menu button

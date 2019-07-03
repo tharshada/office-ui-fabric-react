@@ -1,6 +1,212 @@
 # Change Log - @uifabric/experiments
 
-This log was last generated on Tue, 14 May 2019 07:50:30 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Jul 2019 12:30:55 GMT and should not be manually modified.
+
+## 7.4.1
+Wed, 03 Jul 2019 12:30:55 GMT
+
+### Patches
+
+- Filter out disallowed props from Tile root element (tmichon@microsoft.com)
+
+## 7.4.0
+Mon, 01 Jul 2019 18:51:42 GMT
+
+### Minor changes
+
+- Button: Renaming BaseButton to Actionable, extending Button from Actionable and removing content and icon from Actionable types.
+
+### Patches
+
+- adds react-app-polyfill
+
+## 7.3.0
+Thu, 27 Jun 2019 18:25:04 GMT
+
+### Minor changes
+
+-  Button: Removing Stack usage from vanilla Button's slots and view to improve perf.
+- Chiclet: Add x-small variant
+
+### Patches
+
+- Button example updated.
+
+## 7.2.3
+Tue, 25 Jun 2019 12:26:09 GMT
+
+### Patches
+
+- Updates to tileslist, list and marquee selection
+
+## 7.2.2
+Mon, 24 Jun 2019 23:11:20 GMT
+
+### Patches
+
+- Button: Adding focus tests for Button, MenuButton and SplitButton.
+
+## 7.2.1
+Fri, 21 Jun 2019 12:27:05 GMT
+
+### Patches
+
+- update snapshots due to Tooltip bug fix
+
+## 7.2.0
+Thu, 20 Jun 2019 12:27:38 GMT
+
+### Minor changes
+
+- Removing charting from dependencies.
+
+## 7.1.1
+Tue, 18 Jun 2019 12:26:19 GMT
+
+### Patches
+
+- Button: Getting anchor native props if href prop is specified.
+
+## 7.1.0
+Fri, 14 Jun 2019 15:54:00 GMT
+
+### Minor changes
+
+- Major bumping the foundation package.
+
+## 7.0.3
+Fri, 14 Jun 2019 12:26:30 GMT
+
+### Patches
+
+- Fix missing assets in production build.
+
+## 7.0.2
+Thu, 13 Jun 2019 00:24:48 GMT
+
+### Patches
+
+- Initial release of Fabric 7
+
+## 7.0.0
+Wed, 12 Jun 2019 00:42:26 GMT
+
+### Breaking changes
+
+- Experiments package: remove Shimmer component
+
+### Minor changes
+
+- Button: Adding allowDisabledFocus prop and adding @docCategory tags on exports.
+- Button: Changing style of all variants to be Fluent by default and removing use of palette in favor of semantic slots.
+- Button: Adding keytips to new Button.
+- Button: Making all MenuButton props optional.
+- Button: Adding uniqueId prop.
+- Convert foundation components that have state to hooks.
+- Support slots API changes.
+- Changes to support slots API refactoring.
+- SplitButton: Improving screenreader narration for secondary action and fixing styling in fabric 7 branch.
+- SplitButton: Adding ability to use Alt+Down key combination from first focus stop and cleaning up API.
+- Button: Adding toggle/checked functionality to Button.
+- Add FloatingSuggestions (FloatingPeoplePicker without inheritence)
+- SelectedItemsList: Add reworked Selected Items (no inheritence + hooks)
+
+### Patches
+
+- Button: Fixing SplitButton so that `root` and `button` slot props do not propagate to inner slots.
+- Button: Conditionally rendering KeytipData.
+- Button: Fixing some className assignments in styling.
+- Render demo app with Markdown instead of PageMarkdown
+- Revert unintended change to Button example.
+- Update and dedupe React deps.
+- Support changes to createComponent API.
+- Remove use of deprecated @autobind decorator
+- SplitButton: Fixing some styling bugs related to the divider.
+- Button: Adding documentation to tokens.
+
+## 6.78.7
+Tue, 11 Jun 2019 12:21:35 GMT
+
+### Patches
+
+- Updating snapshots to conform with `getNativeAttributes` changes which should filter out unexpected attributes from primatives more accurately.
+
+## 6.78.6
+Mon, 10 Jun 2019 12:23:59 GMT
+
+### Patches
+
+- Snapshot updates to components for adding aria-hidden to icon component conditionally
+
+## 6.78.5
+Tue, 04 Jun 2019 12:22:17 GMT
+
+### Patches
+
+- Added a signal to wrap an icon for republising reminder
+
+## 6.78.4
+Mon, 03 Jun 2019 23:04:02 GMT
+
+*Version update only*
+
+## 6.78.3
+Fri, 31 May 2019 12:21:26 GMT
+
+### Patches
+
+- Fix issue where SideBar ignored colors props
+- and updated snapshots.
+
+## 6.78.2
+Wed, 29 May 2019 12:21:24 GMT
+
+### Patches
+
+- Revert styled perf fixes temporarily.
+- PersonaCoin: use renamed persona color function
+
+## 6.78.1
+Thu, 23 May 2019 22:14:40 GMT
+
+### Patches
+
+- Examples: Remove relative imports.
+
+## 6.78.0
+Wed, 22 May 2019 12:21:34 GMT
+
+### Minor changes
+
+- Added a variant to MicroFeedback and converted to use Slots
+
+### Patches
+
+- update azure-themes version
+- Button example updated.
+
+## 6.77.0
+Tue, 21 May 2019 12:20:44 GMT
+
+### Minor changes
+
+- <Fabric> element does not affect global button styling.
+
+### Patches
+
+- Use shared demo app bootstrapping code
+
+## 6.76.4
+Fri, 17 May 2019 12:22:31 GMT
+
+### Patches
+
+- Chiclet: update examples and use opengraph API
+
+## 6.76.3
+Thu, 16 May 2019 17:34:08 GMT
+
+*Version update only*
 
 ## 6.76.2
 Tue, 14 May 2019 07:50:30 GMT

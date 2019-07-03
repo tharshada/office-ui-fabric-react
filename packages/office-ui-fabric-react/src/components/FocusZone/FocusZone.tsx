@@ -113,11 +113,13 @@ export class FocusZone extends React.Component<IFocusZoneProps, {}> implements I
     // Manage componentRef resolution.
     initializeComponentRef(this);
 
-    if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       warnDeprecations('FocusZone', props, {
         rootProps: undefined,
         allowTabKey: 'handleTabKey',
-        elementType: 'as'
+        elementType: 'as',
+        ariaDescribedBy: 'aria-describedby',
+        ariaLabelledBy: 'aria-labelledby'
       });
     }
 
@@ -137,7 +139,7 @@ export class FocusZone extends React.Component<IFocusZoneProps, {}> implements I
     _allInstances[this._id] = this;
 
     if (root) {
-      const windowElement = root.ownerDocument!.defaultView;
+      const windowElement = root.ownerDocument!.defaultView!;
 
       let parentElement = getParent(root, ALLOW_VIRTUAL_ELEMENTS);
 
@@ -215,6 +217,8 @@ export class FocusZone extends React.Component<IFocusZoneProps, {}> implements I
     return (
       <Tag
         role="presentation"
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
         {...divProps}
         {
           // root props has been deprecated and should get removed.
@@ -228,8 +232,6 @@ export class FocusZone extends React.Component<IFocusZoneProps, {}> implements I
         className={css(getRootClass(), className)}
         ref={this._root}
         data-focuszone-id={this._id}
-        aria-labelledby={ariaLabelledBy}
-        aria-describedby={ariaDescribedBy}
         onKeyDown={this._onKeyDown}
         onFocus={this._onFocus}
         onMouseDownCapture={this._onMouseDown}
@@ -847,9 +849,9 @@ export class FocusZone extends React.Component<IFocusZoneProps, {}> implements I
             // Going left at a leftmost rectangle will go down a line instead of up a line like in LTR.
             // This is important, because we want to be comparing the top of the target rect
             // with the bottom of the active rect.
-            topBottomComparison = targetRect.top.toFixed(3) < activeRect.bottom.toFixed(3);
+            topBottomComparison = parseFloat(targetRect.top.toFixed(3)) < parseFloat(activeRect.bottom.toFixed(3));
           } else {
-            topBottomComparison = targetRect.bottom.toFixed(3) > activeRect.top.toFixed(3);
+            topBottomComparison = parseFloat(targetRect.bottom.toFixed(3)) > parseFloat(activeRect.top.toFixed(3));
           }
 
           if (topBottomComparison && targetRect.right <= activeRect.right && this.props.direction !== FocusZoneDirection.vertical) {
@@ -887,9 +889,9 @@ export class FocusZone extends React.Component<IFocusZoneProps, {}> implements I
             // Going right at a rightmost rectangle will go up a line instead of down a line like in LTR.
             // This is important, because we want to be comparing the bottom of the target rect
             // with the top of the active rect.
-            topBottomComparison = targetRect.bottom.toFixed(3) > activeRect.top.toFixed(3);
+            topBottomComparison = parseFloat(targetRect.bottom.toFixed(3)) > parseFloat(activeRect.top.toFixed(3));
           } else {
-            topBottomComparison = targetRect.top.toFixed(3) < activeRect.bottom.toFixed(3);
+            topBottomComparison = parseFloat(targetRect.top.toFixed(3)) < parseFloat(activeRect.bottom.toFixed(3));
           }
 
           if (topBottomComparison && targetRect.left >= activeRect.left && this.props.direction !== FocusZoneDirection.vertical) {

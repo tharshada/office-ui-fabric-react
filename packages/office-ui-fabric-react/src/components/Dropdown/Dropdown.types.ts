@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { IRenderFunction, IStyleFunctionOrObject } from '../../Utilities';
 import { IStyle, ITheme } from '../../Styling';
 import { ISelectableOption } from '../../utilities/selectableOption/SelectableOption.types';
@@ -16,6 +17,11 @@ export { ResponsiveMode }; // Exported because the type is an optional prop and 
  * {@docCategory Dropdown}
  */
 export interface IDropdown {
+  /**
+   * All selected options
+   */
+  readonly selectedOptions: IDropdownOption[];
+
   focus: (shouldOpenOnFocus?: boolean) => void;
 }
 
@@ -159,6 +165,11 @@ export type IDropdownStyleProps = Pick<IDropdownProps, 'theme' | 'className' | '
    * Whether the dropdown is in an error state.
    */
   hasError: boolean;
+
+  /**
+   * Specifies if the dropdown has label content.
+   */
+  hasLabel: boolean;
 
   /**
    * Whether the dropdown is in an opened state.

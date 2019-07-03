@@ -18,7 +18,8 @@ const tokens = {
     childrenGap: 32
   },
   headingStack: {
-    childrenGap: 16
+    childrenGap: 16,
+    padding: 8
   },
   buttonStack: {
     childrenGap: 12
@@ -51,7 +52,7 @@ export class ButtonStylesExample extends React.Component<{}, {}> {
 
     return (
       <Stack tokens={tokens.sectionStack}>
-        <Stack tokens={tokens.headingStack} padding={8}>
+        <Stack tokens={tokens.headingStack}>
           <div>
             <Stack tokens={tokens.buttonStack}>
               <ButtonStack>
@@ -60,10 +61,7 @@ export class ButtonStylesExample extends React.Component<{}, {}> {
               </ButtonStack>
               <ButtonStack>
                 <Button icon="PeopleAdd" content="Button Styles Object: Red Text (root)" styles={{ root: { color: '#E20000' } }} />
-                <Button icon="PeopleAdd" content="Button Styles Object: Red Text (stack)" styles={{ stack: { color: '#E20000' } }} />
-              </ButtonStack>
-              <ButtonStack>
-                <Button icon="PeopleAdd" content="Stack Styles Object: Red Text" stack={{ styles: { root: { color: '#E20000' } } }} />
+                <Button icon="PeopleAdd" content="Button Styles Object: Red Text (content)" styles={{ content: { color: '#E20000' } }} />
               </ButtonStack>
               <ButtonStack>
                 <Button icon="PeopleAdd" content="Button Styles Object: Pink Icon" styles={{ icon: { color: 'pink ' } }} />
@@ -107,7 +105,7 @@ export class ButtonStylesExample extends React.Component<{}, {}> {
                 <Button
                   icon={{
                     iconName: 'PeopleAdd',
-                    styles: props => ({ root: { color: '#8F6800' } })
+                    styles: () => ({ root: { color: '#8F6800' } })
                   }}
                   content="Icon Styles Function: Golden Brown Icon"
                 />
@@ -143,7 +141,6 @@ export class ButtonStylesExample extends React.Component<{}, {}> {
                   menu={menuProps}
                   styles={{
                     root: 'root-classname',
-                    stack: 'stack-classname',
                     content: 'content-classname',
                     icon: 'icon-classname',
                     menu: 'menu-classname',

@@ -42,7 +42,7 @@ export class ChoiceGroupBase extends React.Component<IChoiceGroupProps, IChoiceG
 
     initializeComponentRef(this);
 
-    if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       warnDeprecations('ChoiceGroup', props, { onChanged: 'onChange' });
       warnMutuallyExclusive('ChoiceGroup', props, {
         selectedKey: 'defaultSelectedKey'
@@ -85,7 +85,7 @@ export class ChoiceGroupBase extends React.Component<IChoiceGroupProps, IChoiceG
     const { className, theme, styles, options, label, required, disabled, name, role } = this.props;
     const { keyChecked, keyFocused } = this.state;
 
-    const divProps = getNativeProps(this.props, divProperties, ['onChange', 'className', 'required']);
+    const divProps = getNativeProps<React.HTMLAttributes<HTMLDivElement>>(this.props, divProperties, ['onChange', 'className', 'required']);
 
     const classNames = getClassNames(styles!, {
       theme: theme!,

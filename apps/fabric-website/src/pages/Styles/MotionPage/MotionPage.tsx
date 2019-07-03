@@ -47,7 +47,7 @@ const PatternTable = ({ rows }) => (
 
 export const MotionPage: React.StatelessComponent<IStylesPageProps> = props => {
   const { platform } = props;
-  return <StylesAreaPage {...props} {...MotionPageProps[platform]} otherSections={_otherSections(platform)} />;
+  return <StylesAreaPage {...props} {...MotionPageProps[platform]} otherSections={_otherSections(platform) as IPageSectionProps[]} />;
 };
 
 function _otherSections(platform: Platforms): IPageSectionProps<Platforms>[] {
@@ -306,13 +306,7 @@ function _otherSections(platform: Platforms): IPageSectionProps<Platforms>[] {
                 }
               ]}
               // tslint:disable-next-line jsx-no-lambda
-              formatter={(column, row) => {
-                const content = row[column.data];
-                switch (column.title) {
-                  default:
-                    return content;
-                }
-              }}
+              formatter={(column, row) => row[column.data]}
             />
           )
         },
@@ -367,13 +361,10 @@ function _otherSections(platform: Platforms): IPageSectionProps<Platforms>[] {
               ]}
               // tslint:disable-next-line jsx-no-lambda
               formatter={(column, row) => {
-                const content = row[column.data];
-                switch (column.title) {
-                  case 'Example':
-                    return <AnimationExample animation={row.class} />;
-                  default:
-                    return content;
+                if (column.title === 'Example') {
+                  return <AnimationExample animation={row.class} />;
                 }
+                return row[column.data];
               }}
             />
           )

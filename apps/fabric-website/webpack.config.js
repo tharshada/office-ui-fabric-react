@@ -31,19 +31,11 @@ module.exports = function(env) {
         chunkFilename: `${entryPointName}-${version}-[name]-${now}${minFileNamePart}.js`
       },
 
-      externals: [
-        {
-          react: 'React'
-        },
-        {
-          'react-dom': 'ReactDOM'
-        }
-      ],
-
       resolve: {
         alias: {
           '@uifabric/fabric-website/src': path.join(__dirname, 'src'),
           '@uifabric/fabric-website/lib': path.join(__dirname, 'lib'),
+          'office-ui-fabric-react$': path.join(__dirname, 'node_modules/office-ui-fabric-react/lib'),
           'office-ui-fabric-react/src': path.join(__dirname, 'node_modules/office-ui-fabric-react/src'),
           'office-ui-fabric-react/lib': path.join(__dirname, 'node_modules/office-ui-fabric-react/lib'),
           '@uifabric/api-docs/lib': path.join(__dirname, 'node_modules/@uifabric/api-docs/lib')
