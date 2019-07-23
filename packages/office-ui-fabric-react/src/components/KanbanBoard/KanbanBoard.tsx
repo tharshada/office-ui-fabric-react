@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IKanbanBoardProps, IKanbanLaneProps, ILaneColumn, IKanbanLaneState } from './KanbanBoard.types';
+import { IKanbanBoardProps, IKanbanLaneProps, IKanbanLaneState } from './KanbanBoard.types';
 import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { List } from 'office-ui-fabric-react/lib/List';
 import { DefaultButton } from '../Button';
@@ -21,7 +21,7 @@ const classNames = mergeStyleSets({
   },
   laneListWrapper: {
     overflowY: 'auto',
-    maxHeight: '80%',
+    maxHeight: '95%',
     overflowX: 'hidden'
   },
   fetchItemsButton: {
@@ -32,7 +32,10 @@ const classNames = mergeStyleSets({
     overflow: 'hidden'
   },
   laneWrapper: {
-    border: '1px dashed'
+    // border: '1px dashed'
+    backgroundColor: '#AAF1F0',
+    borderRadius: 5,
+    margin: 1
   }
 });
 

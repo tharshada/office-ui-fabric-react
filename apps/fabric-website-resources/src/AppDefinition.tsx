@@ -267,9 +267,9 @@ export const AppDefinition: IAppDefinition = {
           url: '#/examples/image'
         },
         {
-          component: require<any>('./components/pages/KanbanPage').KanbanPage,
-          key: 'Kanban',
-          name: 'Kanban',
+          component: require<any>('./components/pages/KanbanBoardPage').KanbanBoardPage,
+          key: 'KanbanBoard',
+          name: 'KanbanBoard',
           url: '#/examples/kanban'
         },
         {

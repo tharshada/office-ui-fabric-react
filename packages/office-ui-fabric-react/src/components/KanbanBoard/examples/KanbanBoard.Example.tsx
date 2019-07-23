@@ -13,13 +13,17 @@ const classNamesExample = mergeStyleSets({
   wrapper: {
     position: 'relative',
     overflow: 'hidden',
-    height: '40vh'
+    height: '70vh',
+    boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2);',
+    transition: '0.3s'
   },
   laneItemBorder: {
-    border: '1px solid black',
     borderRadius: 5,
     padding: '5px',
     margin: '5px'
+  },
+  cardDetails: {
+    padding: '2px 16px'
   }
 });
 
@@ -76,11 +80,14 @@ export class KanbanBoardExample extends React.Component {
     );
   }
   private _getRandom = (key: string) => {
-    return this[`_${key}s`][parseInt('' + Math.random() * this[`_${key}Count`], 10)];
+    if (key === 'location') {
+      return this._locations[Math.floor(Math.random() * this._locationCount)];
+    } else if (key === 'color') {
+      return this._colors[Math.floor(Math.random() * this._colorCount)];
+    }
   };
 
   private _getItems = (itemsCount: number = this._numberOfItems, laneColumn?: ILaneColumn) => {
-    console.log('======>', itemsCount);
     return Array.from(new Array(itemsCount).keys()).map(i => {
       const location = laneColumn ? laneColumn.name : this._getRandom('location');
       return {
@@ -94,8 +101,12 @@ export class KanbanBoardExample extends React.Component {
   private _onRenderLaneItem(item?: IKanbanBoardExampleItem, index?: number) {
     return (
       <div className={classNamesExample.laneItemBorder} style={{ background: item!.color }}>
-        <div>{item!.col}</div>
-        {/* <div>{item!.otherColumn}</div> */}
+        <img src="https://a.tile.openstreetmap.se/hydda/full/15/16557/11403.png" style={{ width: '100%' }} />
+        <div className={classNamesExample.cardDetails}>
+          <h4>
+            <b>{item!.col}</b>
+          </h4>
+        </div>
       </div>
     );
   }
