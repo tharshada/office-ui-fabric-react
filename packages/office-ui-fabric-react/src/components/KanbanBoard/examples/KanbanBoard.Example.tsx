@@ -24,11 +24,11 @@ export class KanbanBoardExample extends React.Component {
   private _laneColumns: ILaneColumn[];
   private _numberOfColumns: number;
   private _items: IKanbanBoardExampleItem[];
-  private _numberOfItems = 1000;
+  private _numberOfItems = 100;
   constructor(props: any) {
     super(props);
     this._laneColumns = [];
-    this._numberOfColumns = 2;
+    this._numberOfColumns = 19;
     this._getItems = this._getItems.bind(this);
     for (let i = 0; i < this._numberOfColumns; i++) {
       this._laneColumns.push({
@@ -39,7 +39,7 @@ export class KanbanBoardExample extends React.Component {
     this._items = [];
     for (let i = 0; i < this._numberOfItems; i++) {
       this._items.push({
-        col: 'value' + (i % 2),
+        col: 'value' + (i % this._numberOfColumns),
         otherColumn: 'value column abc abc def' + i
       });
     }
