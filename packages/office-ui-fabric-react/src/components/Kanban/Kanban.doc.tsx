@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { IDocPageProps } from '../../common/DocPage.types';
-import { KanbanBasicExample } from './examples/Kanban.Basic.Example';
+// import { KanbanBasicExample } from './examples/Kanban.Basic.Example';
+import { KanbanBoardExample } from '../KanbanBoard/examples/KanbanBoard.Example';
 
-const KanbanBasicExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/Kanban/examples/Kanban.Basic.Example.tsx') as string;
+const KanbanBasicExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/KanbanBoard/examples/KanbanBoard.Example.tsx') as string;
 
 export const KanbanPageProps: IDocPageProps = {
   title: 'Kanban',
@@ -12,7 +13,8 @@ export const KanbanPageProps: IDocPageProps = {
     {
       title: 'Kanban of 50 grid items',
       code: KanbanBasicExampleCode,
-      view: <KanbanBasicExample />
+      view: <KanbanBoardExample />,
+      isScrollable: false
     }
   ],
 

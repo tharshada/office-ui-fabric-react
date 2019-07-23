@@ -2,10 +2,12 @@ import * as React from 'react';
 import { ILaneColumn } from '../KanbanBoard.types';
 import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { KanbanBoard } from '../KanbanBoard';
+import { createListItems } from 'office-ui-fabric-react/lib/utilities/exampleData';
 
 interface IKanbanBoardExampleItem {
   col: string;
   otherColumn: string;
+  color: string;
 }
 const classNamesExample = mergeStyleSets({
   wrapper: {
@@ -24,23 +26,26 @@ export class KanbanBoardExample extends React.Component {
   private _laneColumns: ILaneColumn[];
   private _numberOfColumns: number;
   private _items: IKanbanBoardExampleItem[];
-  private _numberOfItems = 1000;
+  private _numberOfItems = 5;
+  private _location: { [key: string]: boolean };
   constructor(props: any) {
     super(props);
+    this._location = {};
+    this._items = createListItems(this._numberOfItems).map((item, i) => {
+      this._location[item.location] = true;
+      return {
+        ...item,
+        col: item.location,
+        otherColumn: 'value column ' + i
+      };
+    });
+    const location = Object.keys(this._location);
+    this._numberOfColumns = location.length;
     this._laneColumns = [];
-    this._numberOfColumns = 2;
-    this._getItems = this._getItems.bind(this);
     for (let i = 0; i < this._numberOfColumns; i++) {
       this._laneColumns.push({
-        name: 'value' + i,
+        name: location[i],
         key: 'columnValue' + i
-      });
-    }
-    this._items = [];
-    for (let i = 0; i < this._numberOfItems; i++) {
-      this._items.push({
-        col: 'value' + (i % 2),
-        otherColumn: 'value column abc abc def' + i
       });
     }
     this.state = {
@@ -55,18 +60,18 @@ export class KanbanBoardExample extends React.Component {
       </div>
     );
   }
-  private _getItems(laneColumn: ILaneColumn) {
+  private _getItems = (laneColumn: ILaneColumn) => {
     return (
       this._items &&
       this._items.filter(item => {
         return item.col === laneColumn.name;
       })
     );
-  }
+  };
   private _onRenderLaneItem(item?: IKanbanBoardExampleItem, index?: number) {
     console.log('on render item');
     return (
-      <div className={classNamesExample.laneItemBorder}>
+      <div className={classNamesExample.laneItemBorder} style={{ background: item!.color }}>
         <div>{item!.col}</div>
         <div>{item!.otherColumn}</div>
       </div>
