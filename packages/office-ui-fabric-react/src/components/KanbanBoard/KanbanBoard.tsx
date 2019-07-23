@@ -9,7 +9,8 @@ const classNames = mergeStyleSets({
     display: 'flex',
     direction: 'column',
     overflowY: 'hidden',
-    maxHeight: 'inherit'
+    overflowX: 'auto',
+    height: 'inherit'
   },
   kanbanLaneColumn: {
     position: 'relative',
@@ -19,7 +20,19 @@ const classNames = mergeStyleSets({
     overflow: 'hidden'
   },
   laneListWrapper: {
-    overflowY: 'auto'
+    overflowY: 'auto',
+    maxHeight: '80%',
+    overflowX: 'hidden'
+  },
+  fetchItemsButton: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  },
+  laneItem: {
+    overflow: 'hidden'
+  },
+  laneWrapper: {
+    border: '1px dashed'
   }
 });
 
@@ -31,11 +44,10 @@ export class KanbanBoard extends React.PureComponent<IKanbanBoardProps> {
     const columns = this.props.laneColumns;
     return (
       <div className={classNames.kanbanContainer}>
-        {columns.map((element, i) => (
-          <div key={`lane#${i}`} style={{ border: '1px dashed' }}>
-            <KanbanLane {...this.props} laneColumn={element} />
-          </div>
-        ))}
+        {columns.map(element => {
+          const key = KanbanLane.name + element.key;
+          return <KanbanLane {...this.props} laneColumn={element} key={key} />;
+        })}
       </div>
     );
   }
@@ -52,9 +64,9 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
   public render(): JSX.Element {
     const laneWrapperStyle = { width: this._laneColumnWidth };
     return (
-      <div style={laneWrapperStyle}>
+      <div style={laneWrapperStyle} className={classNames.laneWrapper}>
         {this._onRenderLaneColumn(this.props.laneColumn)}
-        <div data-is-scrollable={true} className={classNames.laneListWrapper}>
+        <div className={classNames.laneListWrapper}>
           <List items={this.state.items} onRenderCell={this._onRenderLaneItem} />
           <DefaultButton primary text={`Fetch more items (${this.props.laneColumn.name})`} onClick={this._fetchItems} />
         </div>
@@ -73,7 +85,7 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
 
   private _onRenderLaneItem = (item?: any, index?: number): JSX.Element => {
     const { onRenderLaneItem } = this.props;
-    return <div style={{ width: this._laneColumnWidth }}>{onRenderLaneItem && onRenderLaneItem(item, index)}</div>;
+    return <div className={classNames.laneItem}>{onRenderLaneItem && onRenderLaneItem(item, index)}</div>;
   };
 
   private _onRenderLaneColumn(laneColumn: ILaneColumn) {
