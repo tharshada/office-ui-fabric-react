@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ScrollablePaneDefaultExample } from './examples/ScrollablePane.Default.Example';
 
 import { IDocPageProps } from '../../common/DocPage.types';
-import { ScrollablePaneDetailsListExample } from './examples/ScrollablePane.DetailsList.Example';
 import { KanbanBoardExample } from '../KanbanBoard/examples/KanbanBoard.Example';
 
 const ScrollablePaneDefaultExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/ScrollablePane/examples/ScrollablePane.Default.Example.tsx') as string;
