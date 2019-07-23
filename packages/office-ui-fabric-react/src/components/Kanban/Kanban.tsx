@@ -9,8 +9,9 @@ const classNames = mergeStyleSets({
     direction: 'column'
   },
   kanbanLaneColumn: {
+    textAlign: 'center',
     position: 'relative',
-    backgroundColor: 'azure',
+    backgroundColor: 'lavender',
     top: 0
   },
   kanbanLaneItem: {}

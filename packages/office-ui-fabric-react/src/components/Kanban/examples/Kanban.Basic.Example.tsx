@@ -7,7 +7,7 @@ export class KanbanBasicExample extends React.Component {
   private _cachedItems: any;
   constructor(props: any) {
     super(props);
-    this._cachedItems = createListItems(500);
+    this._cachedItems = createListItems(100);
   }
 
   public render() {
@@ -32,10 +32,10 @@ export class KanbanBasicExample extends React.Component {
 
   private onRenderCell(item: any, index: number): JSX.Element {
     return (
-      <div style={{ margin: 10, border: '1px dashed', backgroundColor: item.color }}>
+      <div style={{ margin: 10, border: '1px dashed', backgroundColor: item.color, textAlign: 'center' }}>
         <div>{index}</div>
         <div>{item.shape}</div>
-        <div>{item.location}</div>
+        <div>{item.location + ' ' + item.location + ' ' + item.location}</div>
       </div>
     );
   }
