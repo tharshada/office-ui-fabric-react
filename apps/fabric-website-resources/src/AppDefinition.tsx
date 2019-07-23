@@ -267,6 +267,12 @@ export const AppDefinition: IAppDefinition = {
           url: '#/examples/image'
         },
         {
+          component: require<any>('./components/pages/KanbanPage').KanbanPage,
+          key: 'Kanban',
+          name: 'Kanban',
+          url: '#/examples/kanban'
+        },
+        {
           component: require<any>('./components/pages/KeytipsPage').KeytipsPage,
           key: 'Keytips',
           name: 'Keytips',
