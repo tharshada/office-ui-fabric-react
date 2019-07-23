@@ -68,9 +68,11 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
 
   private _fetchItems() {
     // improve this logic
-    const oldItems = this.state.items;
     const newItems = (this.props.getItems && this.props.getItems(this.props.laneColumn)) || [];
-    this.setState({ items: { ...oldItems, ...newItems } });
+    this.setState(state => {
+      // Important: read `state` instead of `this.state` when updating.
+      return { items: { ...state.items, ...newItems } };
+    });
   }
 
   private _onRenderLaneItem(item?: any, index?: number): JSX.Element {
