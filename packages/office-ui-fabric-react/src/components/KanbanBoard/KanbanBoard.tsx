@@ -41,42 +41,42 @@ export class KanbanBoard extends React.PureComponent<IKanbanBoardProps> {
     super(props);
   }
   public render(): JSX.Element {
-    const columns = this.props.laneColumns;
     return (
       <div className={classNames.kanbanContainer}>
-        {columns.map(element => {
-          const key = KanbanLane.name + element.key;
-          return <KanbanLane {...this.props} laneColumn={element} key={key} />;
-        })}
+        {this.props.laneColumns.map(laneColumn => (
+          <KanbanLane {...this.props} laneColumn={laneColumn} key={laneColumn.key} />
+        ))}
       </div>
     );
   }
 }
 class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState> {
   private _laneColumnWidth: string = '200px';
+  private _nextItemsCount: number = 3;
   constructor(props: IKanbanLaneProps) {
     super(props);
     this._laneColumnWidth = (this.props.laneColumn.width && this.props.laneColumn.width.toString() + 'px') || this._laneColumnWidth;
     this.state = {
-      items: (this.props.getItems && this.props.getItems(this.props.laneColumn)) || []
+      items: (this.props.getItems && this.props.getItems(this._nextItemsCount, this.props.laneColumn)) || []
     };
   }
   public render(): JSX.Element {
     const laneWrapperStyle = { width: this._laneColumnWidth };
+    const { laneColumn } = this.props;
     return (
       <div style={laneWrapperStyle} className={classNames.laneWrapper}>
-        {this._onRenderLaneColumn(this.props.laneColumn)}
+        {this._onRenderLaneColumn()}
         <div className={classNames.laneListWrapper}>
           <List items={this.state.items} onRenderCell={this._onRenderLaneItem} />
-          <DefaultButton primary text={`${this.props.laneColumn.name}`} onClick={this._fetchItems} style={{ margin: 5 }} />
+          <DefaultButton primary text={`${laneColumn.name}`} onClick={this._fetchItems} style={{ margin: 5 }} />
         </div>
       </div>
     );
   }
 
   private _fetchItems = () => {
-    // improve this logic
-    const newItems = (this.props.getItems && this.props.getItems(this.props.laneColumn)) || [];
+    const { getItems, laneColumn } = this.props;
+    const newItems = (getItems && getItems(this._nextItemsCount, laneColumn)) || [];
     this.setState(state => {
       // Important: read `state` instead of `this.state` when updating.
       return { items: [...state.items, ...newItems] };
@@ -88,14 +88,11 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
     return <div className={classNames.laneItem}>{onRenderLaneItem && onRenderLaneItem(item, index)}</div>;
   };
 
-  private _onRenderLaneColumn(laneColumn: ILaneColumn) {
+  private _onRenderLaneColumn() {
+    const { onRenderLaneColumn, laneColumn } = this.props;
     return (
       <div className={classNames.kanbanLaneColumn}>
-        {this.props.onRenderLaneColumn ? (
-          this.props.onRenderLaneColumn
-        ) : (
-          <div className={classNames.kanbanLaneColumn}>{this.props.laneColumn.name}</div>
-        )}
+        {onRenderLaneColumn ? onRenderLaneColumn : <div className={classNames.kanbanLaneColumn}>{laneColumn.name}</div>}
       </div>
     );
   }

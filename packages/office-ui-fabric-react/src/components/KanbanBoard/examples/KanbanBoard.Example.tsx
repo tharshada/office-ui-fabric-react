@@ -17,6 +17,7 @@ const classNamesExample = mergeStyleSets({
   },
   laneItemBorder: {
     border: '1px solid black',
+    borderRadius: 5,
     padding: '5px',
     margin: '5px'
   }
@@ -25,10 +26,10 @@ const classNamesExample = mergeStyleSets({
 export class KanbanBoardExample extends React.Component {
   private _laneColumns: ILaneColumn[];
   private _numberOfColumns: number;
-  private _items: IKanbanBoardExampleItem[];
   private _numberOfItems = 100;
   private _colors = ['#05ffb0', '#EA4300', '#959595', '#008877'];
-  private _location: string[] = [
+  private _colorCount: number;
+  private _locations: string[] = [
     'Seattle',
     'New York',
     'Chicago',
@@ -56,27 +57,16 @@ export class KanbanBoardExample extends React.Component {
   private _locationCount: number;
   constructor(props: any) {
     super(props);
-    this._locationCount = this._location.length;
-    this._items = Array.from(new Array(this._numberOfItems).keys()).map(i => {
-      const location = this._getLocation();
-      return {
-        location,
-        color: this._colors[i % this._colors.length],
-        col: location,
-        otherColumn: 'value column ' + i
-      };
-    });
+    this._colorCount = this._colors.length;
+    this._locationCount = this._locations.length;
     this._numberOfColumns = this._locationCount;
     this._laneColumns = [];
     for (let i = 0; i < this._numberOfColumns; i++) {
       this._laneColumns.push({
-        name: this._location[i],
+        name: this._locations[i],
         key: 'columnValue' + i
       });
     }
-    this.state = {
-      items: this._items
-    };
   }
   public render() {
     return (
@@ -85,23 +75,27 @@ export class KanbanBoardExample extends React.Component {
       </div>
     );
   }
-  private _getLocation = () => {
-    return this._location[parseInt('' + Math.random() * this._locationCount, 10)];
+  private _getRandom = (key: string) => {
+    return this[`_${key}s`][parseInt('' + Math.random() * this[`_${key}Count`], 10)];
   };
-  private _getItems = (laneColumn: ILaneColumn) => {
-    return (
-      this._items &&
-      this._items.filter(item => {
-        return item.col === laneColumn.name;
-      })
-    );
+
+  private _getItems = (itemsCount: number = this._numberOfItems, laneColumn?: ILaneColumn) => {
+    console.log('======>', itemsCount);
+    return Array.from(new Array(itemsCount).keys()).map(i => {
+      const location = laneColumn ? laneColumn.name : this._getRandom('location');
+      return {
+        location,
+        color: this._getRandom('color'),
+        col: location,
+        otherColumn: 'value column ' + i
+      };
+    });
   };
   private _onRenderLaneItem(item?: IKanbanBoardExampleItem, index?: number) {
-    console.log('on render item');
     return (
       <div className={classNamesExample.laneItemBorder} style={{ background: item!.color }}>
         <div>{item!.col}</div>
-        <div>{item!.otherColumn}</div>
+        {/* <div>{item!.otherColumn}</div> */}
       </div>
     );
   }
