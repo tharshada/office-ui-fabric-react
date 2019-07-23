@@ -71,7 +71,7 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
     const newItems = (this.props.getItems && this.props.getItems(this.props.laneColumn)) || [];
     this.setState(state => {
       // Important: read `state` instead of `this.state` when updating.
-      return { items: { ...state.items, ...newItems } };
+      return { items: [...state.items, ...newItems] };
     });
   }
 
