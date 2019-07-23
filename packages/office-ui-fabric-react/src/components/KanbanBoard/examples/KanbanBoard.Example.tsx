@@ -28,7 +28,7 @@ export class KanbanBoardExample extends React.Component {
   private _items: IKanbanBoardExampleItem[];
   private _numberOfItems = 30;
   private _location: { [key: string]: boolean };
-  private _colors = ['#05ffb0', '#fc6fc6', '#959595', '#008877'];
+  private _colors = ['#05ffb0', '#EA4300', '#959595', '#008877'];
   constructor(props: any) {
     super(props);
     this._location = {};
