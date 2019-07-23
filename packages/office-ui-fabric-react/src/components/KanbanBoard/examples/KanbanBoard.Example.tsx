@@ -2,12 +2,12 @@ import * as React from 'react';
 import { ILaneColumn } from '../KanbanBoard.types';
 import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { KanbanBoard } from '../KanbanBoard';
-import { createListItems } from 'office-ui-fabric-react/lib/utilities/exampleData';
 
 interface IKanbanBoardExampleItem {
   col: string;
   otherColumn: string;
   color: string;
+  location: string;
 }
 const classNamesExample = mergeStyleSets({
   wrapper: {
@@ -26,27 +26,51 @@ export class KanbanBoardExample extends React.Component {
   private _laneColumns: ILaneColumn[];
   private _numberOfColumns: number;
   private _items: IKanbanBoardExampleItem[];
-  private _numberOfItems = 30;
-  private _location: { [key: string]: boolean };
+  private _numberOfItems = 100;
   private _colors = ['#05ffb0', '#EA4300', '#959595', '#008877'];
+  private _location: string[] = [
+    'Seattle',
+    'New York',
+    'Chicago',
+    'Los Angeles',
+    'Portland',
+    'Amherst',
+    'Philadelphia',
+    'Hawaii',
+    'San Francisco',
+    'Los Angels',
+    'Las Vegas',
+    'Denver',
+    'New Jersey',
+    'New Orleans',
+    'Albaquerque',
+    'Manhatten',
+    'Miami',
+    'Boston',
+    'Long Island',
+    'Nashville',
+    'Memphis',
+    'Kansas City',
+    'Houston'
+  ];
+  private _locationCount: number;
   constructor(props: any) {
     super(props);
-    this._location = {};
-    this._items = createListItems(this._numberOfItems).map((item, i) => {
-      this._location[item.location] = true;
+    this._locationCount = this._location.length;
+    this._items = Array.from(new Array(this._numberOfItems).keys()).map(i => {
+      const location = this._getLocation();
       return {
-        ...item,
+        location,
         color: this._colors[i % this._colors.length],
-        col: item.location,
+        col: location,
         otherColumn: 'value column ' + i
       };
     });
-    const location = Object.keys(this._location);
-    this._numberOfColumns = location.length;
+    this._numberOfColumns = this._locationCount;
     this._laneColumns = [];
     for (let i = 0; i < this._numberOfColumns; i++) {
       this._laneColumns.push({
-        name: location[i],
+        name: this._location[i],
         key: 'columnValue' + i
       });
     }
@@ -58,10 +82,12 @@ export class KanbanBoardExample extends React.Component {
     return (
       <div className={classNamesExample.wrapper} data-is-scrollable={true}>
         <KanbanBoard laneColumns={this._laneColumns} getItems={this._getItems} onRenderLaneItem={this._onRenderLaneItem} />
-        {/* <List items={this._items} onRenderCell={this._onRenderLaneItem} /> */}
       </div>
     );
   }
+  private _getLocation = () => {
+    return this._location[parseInt('' + Math.random() * this._locationCount, 10)];
+  };
   private _getItems = (laneColumn: ILaneColumn) => {
     return (
       this._items &&
