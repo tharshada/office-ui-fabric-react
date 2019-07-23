@@ -26,8 +26,9 @@ export class KanbanBoardExample extends React.Component {
   private _laneColumns: ILaneColumn[];
   private _numberOfColumns: number;
   private _items: IKanbanBoardExampleItem[];
-  private _numberOfItems = 5;
+  private _numberOfItems = 30;
   private _location: { [key: string]: boolean };
+  private _colors = ['#05ffb0', '#fc6fc6', '#959595', '#008877'];
   constructor(props: any) {
     super(props);
     this._location = {};
@@ -35,6 +36,7 @@ export class KanbanBoardExample extends React.Component {
       this._location[item.location] = true;
       return {
         ...item,
+        color: this._colors[i % this._colors.length],
         col: item.location,
         otherColumn: 'value column ' + i
       };
