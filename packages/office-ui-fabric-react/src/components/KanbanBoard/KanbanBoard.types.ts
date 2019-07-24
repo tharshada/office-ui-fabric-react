@@ -7,13 +7,16 @@ export interface IKanbanBoardProps {
   laneColumns: ILaneColumn[];
   onRenderLaneItem?: (item?: any, index?: number) => any;
   onRenderLaneColumn?: (laneColumn: ILaneColumn) => any;
-  getItems?: (laneColumn: ILaneColumn) => any[];
+  items?: any[];
+  getMoreLaneItems?: (laneColumn: ILaneColumn) => any[];
+  getLaneItems?: (laneColumn: ILaneColumn, items?: any[]) => any[] | undefined;
 }
 export interface IKanbanLaneProps {
   laneColumn: ILaneColumn;
   onRenderLaneItem?: (item?: any, index?: number) => any;
   onRenderLaneColumn?: (laneColumn: ILaneColumn) => any;
-  getItems?: (laneColumn: ILaneColumn) => any[];
+  items?: any[];
+  getMoreLaneItems?: (laneColumn: ILaneColumn) => any[];
 }
 export interface IKanbanLaneState {
   items: any[];

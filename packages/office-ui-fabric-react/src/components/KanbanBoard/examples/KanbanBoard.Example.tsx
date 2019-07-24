@@ -75,7 +75,13 @@ export class KanbanBoardExample extends React.Component {
   public render() {
     return (
       <div className={classNamesExample.wrapper} data-is-scrollable={true}>
-        <KanbanBoard laneColumns={this._laneColumns} getItems={this._getItems} onRenderLaneItem={this._onRenderLaneItem} />
+        <KanbanBoard
+          laneColumns={this._laneColumns}
+          items={this._getInitialItems()}
+          getLaneItems={this._getLaneItems}
+          getMoreLaneItems={this._getItems}
+          onRenderLaneItem={this._onRenderLaneItem}
+        />
       </div>
     );
   }
@@ -85,6 +91,20 @@ export class KanbanBoardExample extends React.Component {
     } else if (key === 'color') {
       return this._colors[Math.floor(Math.random() * this._colorCount)];
     }
+  };
+
+  private _getLaneItems(laneColumn: ILaneColumn, items?: any[]) {
+    if (items && items.length) {
+      return items.filter(item => item[0].col === laneColumn.name);
+    }
+    return [];
+  }
+  private _getInitialItems = () => {
+    let items: any[] = [];
+    for (let i = 0; i < this._laneColumns.length; i++) {
+      items = [...items, this._getItems(this._laneColumns[i])];
+    }
+    return items;
   };
 
   private _getItems = (laneColumn?: ILaneColumn) => {
@@ -98,6 +118,7 @@ export class KanbanBoardExample extends React.Component {
       };
     });
   };
+
   private _onRenderLaneItem(item?: IKanbanBoardExampleItem, index?: number) {
     return (
       <div className={classNamesExample.laneItemBorder} style={{ background: item!.color }}>
