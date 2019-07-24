@@ -73,12 +73,11 @@ export class KanbanBoard extends React.PureComponent<IKanbanBoardProps> {
 }
 class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState> {
   private _laneColumnWidth: string = '200px';
-  private _nextItemsCount: number = 3;
   constructor(props: IKanbanLaneProps) {
     super(props);
     this._laneColumnWidth = (this.props.laneColumn.width && this.props.laneColumn.width.toString() + 'px') || this._laneColumnWidth;
     this.state = {
-      items: (this.props.getItems && this.props.getItems(this._nextItemsCount, this.props.laneColumn)) || []
+      items: (this.props.getItems && this.props.getItems(this.props.laneColumn)) || []
     };
   }
   public render(): JSX.Element {
@@ -97,7 +96,7 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
 
   private _fetchItems = () => {
     const { getItems, laneColumn } = this.props;
-    const newItems = (getItems && getItems(this._nextItemsCount, laneColumn)) || [];
+    const newItems = (getItems && getItems(laneColumn)) || [];
     this.setState(state => {
       // Important: read `state` instead of `this.state` when updating.
       return { items: [...state.items, ...newItems] };
@@ -141,12 +140,12 @@ class KanbanLane extends React.PureComponent<IKanbanLaneProps, IKanbanLaneState>
   private _moveItem = (sourceIndex: any, destinationIndex: any): void => {
     const items: any[] = this.state.items.slice();
     const itemToMove = items[sourceIndex];
-    //remove rule at currentIndex
+    // remove rule at currentIndex
     items.splice(sourceIndex, 1);
     if (sourceIndex < destinationIndex) {
       destinationIndex = destinationIndex - 1;
     }
-    //insert rule at moveToIndex
+    // insert rule at moveToIndex
     items.splice(destinationIndex, 0, itemToMove);
     this.setState(state => {
       // Important: read `state` instead of `this.state` when updating.
