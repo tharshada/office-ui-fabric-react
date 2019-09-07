@@ -47,6 +47,50 @@ export interface IScrollablePaneProps extends React.HTMLAttributes<HTMLElement |
   initialScrollPosition?: number;
 
   scrollbarVisibility?: ScrollbarVisibility;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always.
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   *
+   */
+  readScrollbarHeight?: () => number;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always.
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   *
+   */
+  readScrollbarWidth?: () => number;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always.
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   *
+   */
+  storeScrollbarHeight?: (scrollbarHeight: number) => void;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always.
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   *
+   */
+  storeScrollbarWidth?: (scrollbarWidth: number) => void;
 }
 
 /**
@@ -117,6 +161,7 @@ export interface IScrollablePaneContext {
     sortSticky: (sticky: Sticky, sortAgain?: boolean) => void;
     notifySubscribers: (sort?: boolean) => void;
     syncScrollSticky: (sticky: Sticky) => void;
+    getHorizontalScrollPosition: () => number;
   };
 }
 

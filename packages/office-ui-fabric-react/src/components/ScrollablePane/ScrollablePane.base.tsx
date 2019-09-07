@@ -6,7 +6,8 @@ import {
   IScrollablePaneProps,
   IScrollablePaneStyleProps,
   IScrollablePaneStyles,
-  ScrollablePaneContext
+  ScrollablePaneContext,
+  ScrollbarVisibility
 } from './ScrollablePane.types';
 import { Sticky } from '../../Sticky';
 
@@ -28,20 +29,22 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   private _stickies: Set<Sticky>;
   private _mutationObserver: MutationObserver;
   private _notifyThrottled: () => void;
+  private _scrollLeft: number;
 
   constructor(props: IScrollablePaneProps) {
     super(props);
     this._subscribers = new Set<Function>();
     this._stickies = new Set<Sticky>();
-
+    const { readScrollbarHeight, readScrollbarWidth, scrollbarVisibility } = this.props;
     this.state = {
       stickyTopHeight: 0,
       stickyBottomHeight: 0,
-      scrollbarWidth: 0,
-      scrollbarHeight: 0
+      scrollbarWidth: scrollbarVisibility === ScrollbarVisibility.always && readScrollbarWidth ? readScrollbarWidth() : 0,
+      scrollbarHeight: scrollbarVisibility === ScrollbarVisibility.always && readScrollbarHeight ? readScrollbarHeight() : 0
     };
 
     this._notifyThrottled = this._async.throttle(this.notifySubscribers, 50);
+    this._scrollLeft = 0;
   }
 
   public get root(): HTMLDivElement | null {
@@ -278,6 +281,10 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     return 0;
   };
 
+  public getHorizontalScrollPosition = (): number => {
+    return this._scrollLeft;
+  };
+
   public syncScrollSticky = (sticky: Sticky): void => {
     if (sticky && this.contentContainer) {
       sticky.syncScroll(this.contentContainer);
@@ -294,7 +301,8 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
         updateStickyRefHeights: this.updateStickyRefHeights,
         sortSticky: this.sortSticky,
         notifySubscribers: this.notifySubscribers,
-        syncScrollSticky: this.syncScrollSticky
+        syncScrollSticky: this.syncScrollSticky,
+        getHorizontalScrollPosition: this.getHorizontalScrollPosition
       }
     };
   };
@@ -413,20 +421,37 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     };
   };
 
+  /**
+   * It returns width of vertical scrollbar
+   */
   private _getScrollbarWidth(): number {
-    const { contentContainer } = this;
-    return contentContainer ? contentContainer.offsetWidth - contentContainer.clientWidth : 0;
+    return _getScrollbarHeightOrWidth(
+      this.contentContainer,
+      false /** reading scrollbar width */,
+      this.props.scrollbarVisibility === ScrollbarVisibility.always,
+      this.props.storeScrollbarWidth,
+      this.props.readScrollbarWidth
+    );
   }
 
+  /**
+   * It returns height of horizontal scrollbar
+   */
   private _getScrollbarHeight(): number {
-    const { contentContainer } = this;
-    return contentContainer ? contentContainer.offsetHeight - contentContainer.clientHeight : 0;
+    return _getScrollbarHeightOrWidth(
+      this.contentContainer,
+      true /** reading scrollbar height */,
+      this.props.scrollbarVisibility === ScrollbarVisibility.always,
+      this.props.storeScrollbarHeight,
+      this.props.readScrollbarHeight
+    );
   }
 
   private _onScroll = () => {
     const { contentContainer } = this;
 
     if (contentContainer) {
+      this._scrollLeft = contentContainer.scrollLeft;
       this._stickies.forEach((sticky: Sticky) => {
         sticky.syncScroll(contentContainer);
       });
@@ -434,4 +459,32 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
 
     this._notifyThrottled();
   };
+}
+
+function _getScrollbarHeightOrWidthForContainer(contentContainer: HTMLDivElement | null, readHeight: boolean): number {
+  if (!contentContainer) {
+    return 0;
+  }
+  return readHeight
+    ? contentContainer.offsetHeight - contentContainer.clientHeight
+    : contentContainer.offsetWidth - contentContainer.clientWidth;
+}
+
+function _getScrollbarHeightOrWidth(
+  contentContainer: HTMLDivElement | null,
+  readHeight: boolean,
+  isScrollbarVisibilityAlways: boolean,
+  storeScrollbarSize?: (scrollbarsize: number) => void,
+  getScrollbarSize?: () => number
+): number {
+  if (!isScrollbarVisibilityAlways) {
+    return _getScrollbarHeightOrWidthForContainer(contentContainer, readHeight);
+  }
+  let scrollbarSize = getScrollbarSize ? getScrollbarSize() : 0;
+  if (!scrollbarSize) {
+    scrollbarSize = _getScrollbarHeightOrWidthForContainer(contentContainer, readHeight);
+    // store it
+    storeScrollbarSize && storeScrollbarSize(scrollbarSize);
+  }
+  return scrollbarSize;
 }

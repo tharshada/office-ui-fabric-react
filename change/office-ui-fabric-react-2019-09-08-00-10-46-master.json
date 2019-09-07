@@ -1,0 +1,8 @@
+{
+  "type": "minor",
+  "comment": "1. Adding prop for ScrollablePane 2. Reflow",
+  "packageName": "office-ui-fabric-react",
+  "email": "hatrived@microsoft.com",
+  "commit": "4d4b5417555e051390d865f24712ef6572f24019",
+  "date": "2019-09-07T18:40:46.001Z"
+}

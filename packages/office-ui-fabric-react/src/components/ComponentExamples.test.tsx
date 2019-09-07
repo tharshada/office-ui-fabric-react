@@ -79,6 +79,7 @@ const excludedExampleFiles: string[] = [
   'Picker.CustomResult.Example.tsx',
   'ScrollablePane.Default.Example.tsx',
   'ScrollablePane.DetailsList.Example.tsx',
+  'ScrollablePane.Sticky.Optimized.DetailsList.Example.tsx',
   'SelectedPeopleList.Basic.Example.tsx'
 ];
 
