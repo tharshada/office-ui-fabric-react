@@ -91,6 +91,26 @@ export interface IScrollablePaneProps extends React.HTMLAttributes<HTMLElement |
    *
    */
   storeScrollbarWidth?: (scrollbarWidth: number) => void;
+
+  /**
+   * If true, it optimizes the performance, but may affect component behavior.
+   * It is suggested to test the component so that it works as per the desired behavior.
+   * Set it to true only if ScrollablePane has Sticky component(s) & for no Sticky component, prop
+   * 'stickyPosition' is 'StickyPositionType.Both'.
+   * It assumes:
+   * 1. 'OnScroll' sticky behavior for all Sticky components, props
+   * 'stickyPosition' is 'StickyPositionType.Header',
+   * 2. 'Always' sticky behavior for all Sticky components, prop
+   * 'stickyPosition' is 'StickyPositionType.Footer'.
+   *
+   * 'onScroll' : Sticky component(s) will become sticky or non-sticky based on scrolling.
+   * The calculation which determine if a Sticky component is sticky or non-sticky,
+   * are done after user interaction (scrolling) and don't affect page load time.
+   *
+   * 'Always': Sticky component(s) will always be sticky independent of scrolling.
+   *  There are no calculations done as the component(s) would always be sticky.
+   */
+  experimentalLayoutImprovements?: boolean;
 }
 
 /**
@@ -109,6 +129,7 @@ export interface IScrollablePaneStyleProps {
 
   scrollbarVisibility?: IScrollablePaneProps['scrollbarVisibility'];
 
+  experimentalLayoutImprovements: boolean;
   // Insert ScrollablePane style props below
 }
 
@@ -162,6 +183,8 @@ export interface IScrollablePaneContext {
     notifySubscribers: (sort?: boolean) => void;
     syncScrollSticky: (sticky: Sticky) => void;
     getHorizontalScrollPosition: () => number;
+    optimizeForPerformace: () => boolean;
+    getUserInteractionStatus: () => boolean;
   };
 }
 

@@ -123,6 +123,7 @@ export class ScrollablePaneStickyOptimizedDetailsList extends React.Component<{}
     return (
       <div className={classNames.wrapper}>
         <ScrollablePane
+          experimentalLayoutImprovements={true}
           scrollbarVisibility={ScrollbarVisibility.always}
           readScrollbarHeight={_readScrollbarHeight}
           readScrollbarWidth={_readScrollbarHeight}

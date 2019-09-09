@@ -6404,6 +6404,8 @@ export interface IScrollablePaneContext {
         notifySubscribers: (sort?: boolean) => void;
         syncScrollSticky: (sticky: Sticky) => void;
         getHorizontalScrollPosition: () => number;
+        optimizeForPerformace: () => boolean;
+        getUserInteractionStatus: () => boolean;
     };
 }
 
@@ -6411,6 +6413,7 @@ export interface IScrollablePaneContext {
 export interface IScrollablePaneProps extends React.HTMLAttributes<HTMLElement | ScrollablePaneBase> {
     className?: string;
     componentRef?: IRefObject<IScrollablePane>;
+    experimentalLayoutImprovements?: boolean;
     initialScrollPosition?: number;
     readScrollbarHeight?: () => number;
     readScrollbarWidth?: () => number;
@@ -6437,6 +6440,8 @@ export interface IScrollablePaneState {
 // @public (undocumented)
 export interface IScrollablePaneStyleProps {
     className?: string;
+    // (undocumented)
+    experimentalLayoutImprovements: boolean;
     // (undocumented)
     scrollbarVisibility?: IScrollablePaneProps['scrollbarVisibility'];
     theme: ITheme;
@@ -7113,6 +7118,7 @@ export interface IStickyContext {
 export interface IStickyProps extends React.Props<Sticky> {
     componentRef?: IRefObject<IStickyProps>;
     isScrollSynced?: boolean;
+    order?: number;
     stickyBackgroundColor?: string;
     stickyClassName?: string;
     stickyPosition?: StickyPositionType;
@@ -8590,7 +8596,11 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     // (undocumented)
     getScrollPosition: () => number;
     // (undocumented)
+    getUserInteractionStatus: () => boolean;
+    // (undocumented)
     notifySubscribers: () => void;
+    // (undocumented)
+    optimizeForPerformance: () => boolean;
     // (undocumented)
     removeSticky: (sticky: Sticky) => void;
     // (undocumented)
@@ -8615,7 +8625,7 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
     unsubscribe: (handler: Function) => void;
     // (undocumented)
     updateStickyRefHeights: () => void;
-}
+    }
 
 // @public (undocumented)
 export const ScrollablePaneContext: React.Context<IScrollablePaneContext>;
