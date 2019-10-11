@@ -47,6 +47,54 @@ export interface IScrollablePaneProps extends React.HTMLAttributes<HTMLElement |
   initialScrollPosition?: number;
 
   scrollbarVisibility?: ScrollbarVisibility;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It is used to read horizontal scrollbar height which is stored (locally) as per storeScrollbarHeight().
+   */
+  readScrollbarHeight?: () => number;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It is used to read vertical scrollbar width which is stored (locally) as per storeScrollbarWidth().
+   */
+  readScrollbarWidth?: () => number;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It can be used to store horizontal scrollbar height locally which can be read by readScrollbarHeight().
+   */
+  storeScrollbarHeight?: (scrollbarHeight: number) => void;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It can be used to store vertical scrollbar width locally which can be read by readScrollbarWidth().
+   */
+  storeScrollbarWidth?: (scrollbarWidth: number) => void;
 }
 
 /**

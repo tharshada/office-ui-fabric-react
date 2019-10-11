@@ -6433,8 +6433,12 @@ export interface IScrollablePaneProps extends React.HTMLAttributes<HTMLElement |
     className?: string;
     componentRef?: IRefObject<IScrollablePane>;
     initialScrollPosition?: number;
+    readScrollbarHeight?: () => number;
+    readScrollbarWidth?: () => number;
     // (undocumented)
     scrollbarVisibility?: ScrollbarVisibility;
+    storeScrollbarHeight?: (scrollbarHeight: number) => void;
+    storeScrollbarWidth?: (scrollbarWidth: number) => void;
     styles?: IStyleFunctionOrObject<IScrollablePaneStyleProps, IScrollablePaneStyles>;
     theme?: ITheme;
 }
