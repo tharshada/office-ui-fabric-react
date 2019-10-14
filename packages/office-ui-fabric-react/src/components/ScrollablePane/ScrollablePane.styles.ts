@@ -7,13 +7,13 @@ const GlobalClassNames = {
 };
 
 export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyles => {
-  const { className, theme } = props;
+  const { className, theme, experimentalLayoutImprovements, scrollbarVisibility } = props;
 
   const classNames = getGlobalClassNames(GlobalClassNames, theme);
 
   const AboveAndBelowStyles: IStyle = {
     position: 'absolute',
-    pointerEvents: 'auto'
+    pointerEvents: experimentalLayoutImprovements ? 'none' : 'auto'
   };
 
   const positioningStyle: IStyle = {
@@ -30,7 +30,8 @@ export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyl
     contentContainer: [
       classNames.contentContainer,
       {
-        overflowY: props.scrollbarVisibility === 'always' ? 'scroll' : 'auto'
+        overflowY: scrollbarVisibility === 'always' ? 'scroll' : 'auto',
+        overflowX: scrollbarVisibility === 'always' ? 'scroll' : 'auto'
       },
       positioningStyle
     ],

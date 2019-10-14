@@ -47,6 +47,75 @@ export interface IScrollablePaneProps extends React.HTMLAttributes<HTMLElement |
   initialScrollPosition?: number;
 
   scrollbarVisibility?: ScrollbarVisibility;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It is used to read horizontal scrollbar height which is stored (locally) as per storeScrollbarHeight().
+   */
+  readScrollbarHeight?: () => number;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It is used to read vertical scrollbar width which is stored (locally) as per storeScrollbarWidth().
+   */
+  readScrollbarWidth?: () => number;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It can be used to store horizontal scrollbar height locally which can be read by readScrollbarHeight().
+   */
+  storeScrollbarHeight?: (scrollbarHeight: number) => void;
+
+  /**
+   * This is prop is useful only if
+   * 1. Sticky component is being used &
+   * 2. scrollbarVisibility is ScrollbarVisibility.always
+   *
+   * ScrollablePane is responsible for providing scrollbars to scroll in case of overflow.
+   * The height of horizontal scrollbar & width of vertical scrollbar are needed to correctly
+   * position Sticky containers.
+   * It can be used to store vertical scrollbar width locally which can be read by readScrollbarWidth().
+   */
+  storeScrollbarWidth?: (scrollbarWidth: number) => void;
+
+  /**
+   * If true, it optimizes the performance, but may affect component behavior.
+   * It is suggested to test the component so that it works as per the desired behavior.
+   * Set it to true only if ScrollablePane has Sticky component(s) &
+   * for no Sticky component, prop 'stickyPosition' is 'StickyPositionType.Both'.
+   *
+   * It assumes:
+   * 1. 'OnScroll' sticky behavior for all Sticky components, props
+   * 'stickyPosition' is 'StickyPositionType.Header',
+   * 2. 'Always' sticky behavior for all Sticky components, prop
+   * 'stickyPosition' is 'StickyPositionType.Footer'.
+   *
+   * 'onScroll' : Sticky component(s) will become sticky or non-sticky based on scrolling.
+   * The calculation which determine if a Sticky component is sticky or non-sticky,
+   * are done after user interaction (scrolling) and don't affect page load time.
+   *
+   * 'Always': Sticky component(s) will always be sticky independent of scrolling.
+   *  There are no calculations done as the component(s) would always be sticky.
+   */
+  experimentalLayoutImprovements?: boolean;
 }
 
 /**
@@ -65,6 +134,7 @@ export interface IScrollablePaneStyleProps {
 
   scrollbarVisibility?: IScrollablePaneProps['scrollbarVisibility'];
 
+  experimentalLayoutImprovements: boolean;
   // Insert ScrollablePane style props below
 }
 
@@ -117,6 +187,9 @@ export interface IScrollablePaneContext {
     sortSticky: (sticky: Sticky, sortAgain?: boolean) => void;
     notifySubscribers: (sort?: boolean) => void;
     syncScrollSticky: (sticky: Sticky) => void;
+    getHorizontalScrollPosition: () => number;
+    optimizeForPerformace: () => boolean;
+    getUserInteractionStatus: () => boolean;
   };
 }
 

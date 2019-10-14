@@ -68,10 +68,20 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
   }
 
   public syncScroll = (container: HTMLElement): void => {
-    const { nonStickyContent } = this;
-
-    if (nonStickyContent && this.props.isScrollSynced) {
-      nonStickyContent.scrollLeft = container.scrollLeft;
+    const { nonStickyContent, stickyContentTop, stickyContentBottom, state, context } = this;
+    const { isStickyBottom, isStickyTop } = state;
+    const { scrollablePane } = context;
+    // scroll sync is needed only if current state is sticky
+    if (!scrollablePane || !this.props.isScrollSynced || !(isStickyBottom || isStickyTop)) {
+      return;
+    }
+    const containerScrollLeft = scrollablePane.getHorizontalScrollPosition();
+    const usePlaceholderForSticky = !scrollablePane.optimizeForPerformace();
+    const stickyContent = isStickyTop ? stickyContentTop : stickyContentBottom;
+    if (!usePlaceholderForSticky && stickyContent && stickyContent.children && stickyContent.children.length > 0) {
+      stickyContent.children[0].scrollLeft = containerScrollLeft;
+    } else if (nonStickyContent) {
+      nonStickyContent.scrollLeft = containerScrollLeft;
     }
   };
 
@@ -105,26 +115,24 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     }
 
     const { isStickyBottom, isStickyTop, distanceFromTop } = this.state;
-    let syncScroll: boolean = false;
     if (prevState.distanceFromTop !== distanceFromTop) {
       scrollablePane.sortSticky(this, true /*sortAgain*/);
-      syncScroll = true;
     }
     if (prevState.isStickyTop !== isStickyTop || prevState.isStickyBottom !== isStickyBottom) {
       if (this._activeElement) {
         this._activeElement.focus();
       }
       scrollablePane.updateStickyRefHeights();
-      syncScroll = true;
     }
-    if (syncScroll) {
+    if (scrollablePane.getUserInteractionStatus()) {
       // Sync Sticky scroll position with content container on each update
       scrollablePane.syncScrollSticky(this);
     }
   }
 
   public shouldComponentUpdate(nextProps: IStickyProps, nextState: IStickyState): boolean {
-    if (!this.context.scrollablePane) {
+    const { scrollablePane } = this.context;
+    if (!scrollablePane) {
       return true;
     }
 
@@ -135,36 +143,40 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       this.props.stickyPosition !== nextProps.stickyPosition ||
       this.props.children !== nextProps.children ||
       distanceFromTop !== nextState.distanceFromTop ||
-      _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop) ||
-      _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentBottom) ||
-      _isOffsetHeightDifferent(this._nonStickyContent, this._placeHolder)) as boolean;
+      (!scrollablePane.optimizeForPerformace() &&
+        _isOffsetHeightDifferent(this._nonStickyContent, this._stickyContentTop, this._stickyContentBottom, this._placeHolder))) as boolean;
   }
 
   public render(): JSX.Element {
-    const { isStickyTop, isStickyBottom } = this.state;
-    const { stickyClassName, children } = this.props;
+    const { state, context, canStickyBottom, canStickyTop, nonStickyContent } = this;
+    const { isStickyTop, isStickyBottom } = state;
+    const { stickyClassName, children, stickyBackgroundColor } = this.props;
 
-    if (!this.context.scrollablePane) {
+    const scrollablePaneContext = context ? context.scrollablePane : undefined;
+    if (!scrollablePaneContext) {
       return <div>{this.props.children}</div>;
     }
 
     return (
       <div ref={this._root}>
-        {this.canStickyTop && (
-          <div ref={this._stickyContentTop} aria-hidden={!isStickyTop} style={{ pointerEvents: isStickyTop ? 'auto' : 'none' }}>
-            <div style={this._getStickyPlaceholderHeight(isStickyTop)} />
-          </div>
-        )}
-        {this.canStickyBottom && (
-          <div ref={this._stickyContentBottom} aria-hidden={!isStickyBottom} style={{ pointerEvents: isStickyBottom ? 'auto' : 'none' }}>
-            <div style={this._getStickyPlaceholderHeight(isStickyBottom)} />
-          </div>
-        )}
-        <div style={this._getNonStickyPlaceholderHeightAndWidth()} ref={this._placeHolder}>
+        {canStickyTop && this._getStickyContent(StickyPositionType.Header, isStickyTop)}
+        {canStickyBottom && this._getStickyContent(StickyPositionType.Footer, isStickyBottom)}
+        <div
+          style={_getNonStickyPlaceholderHeightAndWidth(
+            {
+              state,
+              canStickyTop,
+              canStickyBottom,
+              nonStickyContent
+            },
+            scrollablePaneContext.optimizeForPerformace()
+          )}
+          ref={this._placeHolder}
+        >
           <div
             ref={this._nonStickyContent}
             className={isStickyTop || isStickyBottom ? stickyClassName : undefined}
-            style={this._getContentStyles(isStickyTop || isStickyBottom)}
+            style={_getContentStyles(isStickyTop || isStickyBottom, this.root, stickyBackgroundColor)}
           >
             {children}
           </div>
@@ -174,91 +186,95 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
   }
 
   public addSticky(stickyContent: HTMLDivElement): void {
-    if (this.nonStickyContent) {
+    const placeholderUsedForStickyContent = !this.context.scrollablePane.optimizeForPerformace();
+    if (placeholderUsedForStickyContent && this.nonStickyContent) {
       stickyContent.appendChild(this.nonStickyContent);
     }
   }
 
   public resetSticky(): void {
-    if (this.nonStickyContent && this.placeholder) {
+    const placeholderUsedForStickyContent = !this.context.scrollablePane.optimizeForPerformace();
+    if (placeholderUsedForStickyContent && this.nonStickyContent && this.placeholder) {
       this.placeholder.appendChild(this.nonStickyContent);
     }
   }
 
   public setDistanceFromTop(container: HTMLDivElement): void {
-    const distanceFromTop = this._getNonStickyDistanceFromTop(container);
+    /**
+     * Get distance for non sticky root div from container
+     */
+    const distanceFromTop = _getNonStickyDistanceFromTop(container, this.root);
     this.setState({ distanceFromTop: distanceFromTop });
   }
 
   private _getContext = (): IScrollablePaneContext => this.context;
 
-  private _getContentStyles(isSticky: boolean): React.CSSProperties {
-    return {
-      backgroundColor: this.props.stickyBackgroundColor || this._getBackground(),
-      overflow: isSticky ? 'hidden' : ''
-    };
-  }
-
-  private _getStickyPlaceholderHeight(isSticky: boolean): React.CSSProperties {
-    const height = this.nonStickyContent ? this.nonStickyContent.offsetHeight : 0;
-    return {
-      visibility: isSticky ? 'hidden' : 'visible',
-      height: isSticky ? 0 : height
-    };
-  }
-
-  private _getNonStickyPlaceholderHeightAndWidth(): React.CSSProperties {
-    const { isStickyTop, isStickyBottom } = this.state;
-    if (isStickyTop || isStickyBottom) {
-      let height = 0,
-        width = 0;
-      // Why is placeHolder width needed?
-      // ScrollablePane content--container is reponsible for providing scrollbars depending on content overflow.
-      // If the overflow is caused by content of sticky component when it is in non-sticky state,
-      // ScrollablePane content--conatiner will provide horizontal scrollbar.
-      // If the component becomes sticky, i.e., when state.isStickyTop || state.isStickyBottom becomes true,
-      // it's actual content is no more inside ScrollablePane content--container.
-      // ScrollablePane content--conatiner will see no need for horizontal scrollbar. (Assuming no other content is causing overflow)
-      // The complete content of sticky component will not be viewable.
-      // It is necessary to provide a placeHolder of a certain width (height is already being set) in the content--container,
-      // to get a horizontal scrollbar & be able to view the complete content of sticky component.
-      if (this.nonStickyContent && this.nonStickyContent.firstElementChild) {
-        height = this.nonStickyContent.offsetHeight;
-        // What value should be substituted for placeHolder width?
-        // Assumption:
-        //    1. Content inside <Sticky> should always be wrapped in a single div.
-        //        <Sticky><div id={'firstElementChild'}>{intended_content}</div><Sticky/>
-        //    2. -ve padding, margin, etc. are not be used.
-        //    3. scrollWidth of a parent is greater than or equal to max of scrollWidths of it's children and same holds for children.
-        // placeHolder width should be computed in the best possible way to prevent overscroll/underscroll.
-        width =
-          this.nonStickyContent.firstElementChild.scrollWidth +
-          ((this.nonStickyContent.firstElementChild as HTMLElement).offsetWidth - this.nonStickyContent.firstElementChild.clientWidth);
-      }
-      return {
-        height: height,
-        width: width
-      };
-    } else {
-      return {};
-    }
+  private _getStickyContent(stickyPositionType: StickyPositionType, isSticky: boolean): JSX.Element {
+    const { stickyClassName, children, stickyBackgroundColor } = this.props;
+    const { scrollablePane } = this.context;
+    // decide if actual element is to be replicated or placeholder is be to used.
+    const usePlaceholderForStickyContent = !scrollablePane.optimizeForPerformace();
+    return (
+      <div
+        ref={stickyPositionType === StickyPositionType.Header ? this._stickyContentTop : this._stickyContentBottom}
+        aria-hidden={!isSticky}
+        style={{ pointerEvents: isSticky ? 'auto' : 'none' }}
+      >
+        {usePlaceholderForStickyContent ? (
+          <div style={_getStickyPlaceholderStyles(isSticky, this.nonStickyContent)} />
+        ) : (
+          <div
+            className={isSticky ? stickyClassName : undefined}
+            style={_getStickyContentStyles(isSticky, this.root, stickyBackgroundColor)}
+          >
+            {children}
+          </div>
+        )}
+      </div>
+    );
   }
 
   private _onScrollEvent = (container: HTMLElement, footerStickyContainer: HTMLElement): void => {
-    if (this.root && this.nonStickyContent) {
-      const distanceFromTop = this._getNonStickyDistanceFromTop(container);
+    const { scrollablePane } = this.context;
+    if (!this.root || !this.nonStickyContent || !scrollablePane) {
+      return;
+    }
+    const perfOptimization = scrollablePane.optimizeForPerformance();
+    if (perfOptimization && this.canStickyBottom) {
+      /**
+       * 1. ScrollablePane is mounted and has called notifySubscriber
+       * 2. stickyAlways has to re-render if mutation could 've affected it's children
+       */
+      this.setState({
+        isStickyTop: false,
+        isStickyBottom: true,
+        distanceFromTop: 0 // must so that sorting happens.
+      });
+    } else if (perfOptimization && this.canStickyTop && !scrollablePane.getUserInteractionStatus()) {
+      // user interaction has not started
+      // 1. ScrollablePane is mounted and has called notifySubscriber, sort is required.
+      // 2. StickyOnScroll has to re-render if mutation could 've affected it's children.
+      const { isStickyBottom, isStickyTop } = this.state;
+      scrollablePane.sortSticky(this, false);
+      this.setState({
+        isStickyBottom: isStickyBottom,
+        isStickyTop: isStickyTop
+      });
+    } else {
+      const distanceFromTop = _getNonStickyDistanceFromTop(container, this.root);
       let isStickyTop = false;
       let isStickyBottom = false;
 
       if (this.canStickyTop) {
-        const distanceToStickTop = distanceFromTop - this._getStickyDistanceFromTop();
+        const distanceToStickTop = distanceFromTop - _getStickyDistanceFromTop(this.stickyContentTop);
         isStickyTop = distanceToStickTop < container.scrollTop;
       }
 
       // Can sticky bottom if the scrollablePane - total sticky footer height is smaller than the sticky's distance from the top of the pane
       if (this.canStickyBottom && container.clientHeight - footerStickyContainer.offsetHeight <= distanceFromTop) {
         isStickyBottom =
-          distanceFromTop - Math.floor(container.scrollTop) >= this._getStickyDistanceFromTopForFooter(container, footerStickyContainer);
+          distanceFromTop - Math.floor(container.scrollTop) >=
+          _getStickyDistanceFromTopForFooter(container, footerStickyContainer, this.stickyContentBottom);
       }
 
       if (
@@ -278,66 +294,188 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
       });
     }
   };
+}
 
-  private _getStickyDistanceFromTop = (): number => {
-    let distance = 0;
-    if (this.stickyContentTop) {
-      distance = this.stickyContentTop.offsetTop;
+/**
+ * Checks if a & b have same offsetHeight
+ * @param a
+ * @param b
+ */
+function _isOffsetHeightDifferentUtil(a: React.RefObject<HTMLElement>, b: React.RefObject<HTMLDivElement>): boolean {
+  return (a && b && a.current && b.current && a.current.offsetHeight !== b.current.offsetHeight) as boolean;
+}
+
+/**
+ * Checks if offsetHeight for any of - stickyContentTop, stickyContentBottom, placeholder differs from nonStickyContent
+ * @param nonStickyContent
+ * @param stickyContentTop
+ * @param stickyContentBottom
+ * @param placeholder
+ */
+function _isOffsetHeightDifferent(
+  nonStickyContent: React.RefObject<HTMLElement>,
+  stickyContentTop: React.RefObject<HTMLDivElement>,
+  stickyContentBottom: React.RefObject<HTMLDivElement>,
+  placeholder: React.RefObject<HTMLDivElement>
+): boolean {
+  return (
+    _isOffsetHeightDifferentUtil(nonStickyContent, stickyContentTop) ||
+    _isOffsetHeightDifferentUtil(nonStickyContent, stickyContentBottom) ||
+    _isOffsetHeightDifferentUtil(nonStickyContent, placeholder)
+  );
+}
+/**
+ * Returns placeholder height & width for sticky component's non-sticky content
+ */
+function _getNonStickyPlaceholderHeightAndWidth(
+  sticky: {
+    state: IStickyState;
+    canStickyTop: boolean;
+    canStickyBottom: boolean;
+    nonStickyContent: HTMLDivElement | null;
+  },
+  experimentalLayoutsFlag: boolean
+): React.CSSProperties {
+  const { isStickyTop, isStickyBottom } = sticky.state;
+  const { nonStickyContent } = sticky;
+  const usePlaceholderForSticky = !experimentalLayoutsFlag;
+  if ((isStickyTop || isStickyBottom) && usePlaceholderForSticky) {
+    let height = 0,
+      width = 0;
+    // Why is placeHolder width needed?
+    // ScrollablePane content--container is reponsible for providing scrollbars depending on content overflow.
+    // If the overflow is caused by content of sticky component when it is in non-sticky state,
+    // ScrollablePane content--conatiner will provide horizontal scrollbar.
+    // If the component becomes sticky, i.e., when state.isStickyTop || state.isStickyBottom becomes true,
+    // it's actual content is no more inside ScrollablePane content--container.
+    // ScrollablePane content--conatiner will see no need for horizontal scrollbar. (Assuming no other content is causing overflow)
+    // The complete content of sticky component will not be viewable.
+    // It is necessary to provide a placeHolder of a certain width (height is already being set) in the content--container,
+    // to get a horizontal scrollbar & be able to view the complete content of sticky component.
+    if (nonStickyContent && nonStickyContent.firstElementChild) {
+      height = nonStickyContent.offsetHeight;
+      // What value should be substituted for placeHolder width?
+      // Assumption:
+      //    1. Content inside <Sticky> should always be wrapped in a single div.
+      //        <Sticky><div id={'firstElementChild'}>{intended_content}</div><Sticky/>
+      //    2. -ve padding, margin, etc. are not be used.
+      //    3. scrollWidth of a parent is greater than or equal to max of scrollWidths of it's children and same holds for children.
+      // placeHolder width should be computed in the best possible way to prevent overscroll/underscroll.
+      width =
+        nonStickyContent.firstElementChild.scrollWidth +
+        ((nonStickyContent.firstElementChild as HTMLElement).offsetWidth - nonStickyContent.firstElementChild.clientWidth);
     }
-
-    return distance;
-  };
-
-  private _getStickyDistanceFromTopForFooter = (container: HTMLElement, footerStickyVisibleContainer: HTMLElement): number => {
-    let distance = 0;
-    if (this.stickyContentBottom) {
-      distance = container.clientHeight - footerStickyVisibleContainer.offsetHeight + this.stickyContentBottom.offsetTop;
-    }
-
-    return distance;
-  };
-
-  private _getNonStickyDistanceFromTop = (container: HTMLElement): number => {
-    let distance = 0;
-    let currElem = this.root;
-
-    if (currElem) {
-      while (currElem && currElem.offsetParent !== container) {
-        distance += currElem.offsetTop;
-        currElem = currElem.offsetParent as HTMLDivElement;
-      }
-
-      if (currElem && currElem.offsetParent === container) {
-        distance += currElem.offsetTop;
-      }
-    }
-    return distance;
-  };
-
-  // Gets background of nearest parent element that has a declared background-color attribute
-  private _getBackground(): string | undefined {
-    if (!this.root) {
-      return undefined;
-    }
-
-    let curr: HTMLElement = this.root;
-
-    while (
-      window.getComputedStyle(curr).getPropertyValue('background-color') === 'rgba(0, 0, 0, 0)' ||
-      window.getComputedStyle(curr).getPropertyValue('background-color') === 'transparent'
-    ) {
-      if (curr.tagName === 'HTML') {
-        // Fallback color if no element has a declared background-color attribute
-        return undefined;
-      }
-      if (curr.parentElement) {
-        curr = curr.parentElement;
-      }
-    }
-    return window.getComputedStyle(curr).getPropertyValue('background-color');
+    return {
+      height: height,
+      width: width
+    };
+  } else {
+    return {};
   }
 }
 
-function _isOffsetHeightDifferent(a: React.RefObject<HTMLElement>, b: React.RefObject<HTMLDivElement>): boolean {
-  return (a && b && a.current && b.current && a.current.offsetHeight !== b.current.offsetHeight) as boolean;
+/**
+ * Gets background of nearest parent element that has a declared background-color attribute
+ */
+function _getBackgroundOfNearestAncestor(root: HTMLDivElement | null): string | undefined {
+  if (!root) {
+    return undefined;
+  }
+  let curr: HTMLElement = root;
+  let backgroundColor = _getComputedStyle(curr, BACKGROUNDCOLORSTRING);
+  while (backgroundColor === 'rgba(0, 0, 0, 0)' || backgroundColor === 'transparent') {
+    if (curr.tagName === 'HTML') {
+      // Fallback color if no element has a declared background-color attribute
+      return undefined;
+    }
+    if (curr.parentElement) {
+      curr = curr.parentElement;
+    }
+    backgroundColor = _getComputedStyle(curr, BACKGROUNDCOLORSTRING);
+  }
+  return backgroundColor;
+}
+
+/**
+ * @param curr HTMLElement for which style is to be computed
+ * @param propertyName name of style property which is to be computed
+ */
+function _getComputedStyle(curr: HTMLElement, propertyName: string): string {
+  return window.getComputedStyle(curr).getPropertyValue(propertyName);
+}
+
+const BACKGROUNDCOLORSTRING: string = 'background-color';
+
+/**
+ * Gets distance for curr div from ancestor container div
+ * @param container
+ * @param curr
+ */
+function _getNonStickyDistanceFromTop(container: HTMLElement, curr: HTMLDivElement | null): number {
+  let distance = 0;
+  let currElem = curr;
+  if (currElem) {
+    while (currElem && currElem.offsetParent !== container) {
+      distance += currElem.offsetTop;
+      currElem = currElem.offsetParent as HTMLDivElement;
+    }
+
+    if (currElem && currElem.offsetParent === container) {
+      distance += currElem.offsetTop;
+    }
+  }
+  return distance;
+}
+
+/**
+ * Gets style for sticky content
+ * @param isSticky Pass true, if state is sticky
+ * @param root
+ * @param stickyBackgroundColor
+ */
+function _getStickyContentStyles(isSticky: boolean, root: HTMLDivElement | null, stickyBackgroundColor?: string): React.CSSProperties {
+  return {
+    visibility: isSticky ? 'visible' : 'hidden',
+    pointerEvents: isSticky ? 'auto' : 'none',
+    overflow: 'hidden',
+    backgroundColor: stickyBackgroundColor || _getBackgroundOfNearestAncestor(root)
+  };
+}
+
+/**
+ * Gets placeholder styles for sticky div
+ * @param isSticky Pass true, if state is sticky
+ * @param nonStickyContent
+ */
+function _getStickyPlaceholderStyles(isSticky: boolean, nonStickyContent: HTMLDivElement | null): React.CSSProperties {
+  const height = nonStickyContent ? nonStickyContent.offsetHeight : 0;
+  return {
+    visibility: isSticky ? 'hidden' : 'visible',
+    height: isSticky ? 0 : height
+  };
+}
+
+/**
+ *
+ * @param isSticky Pass true, if state is sticky
+ * @param root
+ * @param stickyBackgroundColor
+ */
+function _getContentStyles(isSticky: boolean, root: HTMLDivElement | null, stickyBackgroundColor?: string): React.CSSProperties {
+  return {
+    backgroundColor: stickyBackgroundColor || _getBackgroundOfNearestAncestor(root),
+    overflow: isSticky ? 'hidden' : ''
+  };
+}
+
+function _getStickyDistanceFromTop(stickyContentTop: HTMLDivElement | null): number {
+  return stickyContentTop ? stickyContentTop.offsetTop : 0;
+}
+
+function _getStickyDistanceFromTopForFooter(
+  container: HTMLElement,
+  footerStickyVisibleContainer: HTMLElement,
+  stickyContentBottom: HTMLDivElement | null
+): number {
+  return stickyContentBottom ? container.clientHeight - footerStickyVisibleContainer.offsetHeight + stickyContentBottom.offsetTop : 0;
 }
