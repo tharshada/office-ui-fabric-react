@@ -61,11 +61,12 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   }
 
   public componentDidMount() {
-    const { initialScrollPosition } = this.props;
-    this._events.on(this.contentContainer, 'scroll', this._onScroll);
+    const { contentContainer, props } = this;
+    const initialScrollPosition = _getPropsInitialScrollPosition(props);
+    this._events.on(contentContainer, 'scroll', this._onScroll);
     this._events.on(window, 'resize', this._onWindowResize);
-    if (this.contentContainer && initialScrollPosition) {
-      this.contentContainer.scrollTop = initialScrollPosition;
+    if (contentContainer && initialScrollPosition) {
+      contentContainer.scrollTop = initialScrollPosition;
     }
 
     // Set sticky distances from top property, then sort in correct order and notify subscribers
@@ -86,9 +87,9 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
         }
 
         // Compute the scrollbar height which might have changed due to change in width of the content which might cause overflow
-        const scrollbarHeight = this._getScrollbarHeight();
+        const scrollbarHeight = _getScrollbarHeight(this.contentContainer);
         // check if the scroll bar height has changed and update the state so that it's postioned correctly below sticky footer
-        if (scrollbarHeight !== this.state.scrollbarHeight) {
+        if (scrollbarHeight !== _getStateScrollbarHeight(this.state)) {
           this.setState({
             scrollbarHeight: scrollbarHeight
           });
@@ -138,25 +139,33 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
 
   // Only updates if props/state change, just to prevent excessive setState with updateStickyRefHeights
   public shouldComponentUpdate(nextProps: IScrollablePaneProps, nextState: IScrollablePaneState): boolean {
+    const { props, state } = this;
     return (
-      this.props.children !== nextProps.children ||
-      this.props.initialScrollPosition !== nextProps.initialScrollPosition ||
-      this.props.className !== nextProps.className ||
-      this.state.stickyTopHeight !== nextState.stickyTopHeight ||
-      this.state.stickyBottomHeight !== nextState.stickyBottomHeight ||
-      this.state.scrollbarWidth !== nextState.scrollbarWidth ||
-      this.state.scrollbarHeight !== nextState.scrollbarHeight
+      props.children !== nextProps.children ||
+      _getPropsInitialScrollPosition(props) !== _getPropsInitialScrollPosition(nextProps) ||
+      props.className !== nextProps.className ||
+      _getStateStickyTopHeight(state) !== _getStateStickyTopHeight(nextState) ||
+      _getStateStickyBottomHeight(state) !== _getStateStickyBottomHeight(nextState) ||
+      _getStateScrollbarWidth(state) !== _getStateScrollbarWidth(nextState) ||
+      _getStateScrollbarHeight(state) !== _getStateScrollbarHeight(nextState)
     );
   }
 
   public componentDidUpdate(prevProps: IScrollablePaneProps, prevState: IScrollablePaneState) {
-    const initialScrollPosition = this.props.initialScrollPosition;
-    if (this.contentContainer && typeof initialScrollPosition === 'number' && prevProps.initialScrollPosition !== initialScrollPosition) {
+    const initialScrollPosition = _getPropsInitialScrollPosition(this.props);
+    if (
+      this.contentContainer &&
+      typeof initialScrollPosition === 'number' &&
+      _getPropsInitialScrollPosition(prevProps) !== initialScrollPosition
+    ) {
       this.contentContainer.scrollTop = initialScrollPosition;
     }
 
     // Update subscribers when stickyTopHeight/stickyBottomHeight changes
-    if (prevState.stickyTopHeight !== this.state.stickyTopHeight || prevState.stickyBottomHeight !== this.state.stickyBottomHeight) {
+    if (
+      _getStateStickyTopHeight(prevState) !== _getStateStickyTopHeight(this.state) ||
+      _getStateStickyBottomHeight(prevState) !== _getStateStickyBottomHeight(this.state)
+    ) {
       this.notifySubscribers();
     }
 
@@ -164,21 +173,28 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   }
 
   public render(): JSX.Element {
-    const { className, theme, styles } = this.props;
-    const { stickyTopHeight, stickyBottomHeight } = this.state;
-    const classNames = getClassNames(styles!, {
-      theme: theme!,
-      className,
+    const { props, state, contentContainer } = this;
+    const classNames = getClassNames(props.styles!, {
+      theme: props.theme!,
+      className: props.className,
       scrollbarVisibility: this.props.scrollbarVisibility
     });
-
+    const scrollbarHeight = _getStateScrollbarHeight(state) || _getScrollbarHeight(contentContainer);
+    const scrollbarWidth = _getStateScrollbarWidth(state) || _getScrollbarWidth(contentContainer);
     return (
       <div {...getNativeProps(this.props, divProperties)} ref={this._root} className={classNames.root}>
         <div ref={this._contentContainer} className={classNames.contentContainer} data-is-scrollable={true}>
           <ScrollablePaneContext.Provider value={this._getScrollablePaneContext()}>{this.props.children}</ScrollablePaneContext.Provider>
         </div>
-        <div ref={this._stickyAboveRef} className={classNames.stickyAbove} style={this._getStickyContainerStyle(stickyTopHeight, true)} />
-        <div className={classNames.stickyBelow} style={this._getStickyContainerStyle(stickyBottomHeight, false)}>
+        <div
+          ref={this._stickyAboveRef}
+          className={classNames.stickyAbove}
+          style={_getStickyContainerStyle(scrollbarHeight, scrollbarWidth, true, _getStateStickyTopHeight(state))}
+        />
+        <div
+          className={classNames.stickyBelow}
+          style={_getStickyContainerStyle(scrollbarHeight, scrollbarWidth, false, _getStateStickyBottomHeight(state))}
+        >
           <div ref={this._stickyBelowRef} className={classNames.stickyBelowItems} />
         </div>
       </div>
@@ -226,12 +242,12 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
       if (sortAgain) {
         this._removeStickyFromContainers(sticky);
       }
-      if (sticky.canStickyTop && sticky.stickyContentTop) {
-        this._addToStickyContainer(sticky, this.stickyAbove, sticky.stickyContentTop);
+      if (sticky.canStickyTop && _getStickyContentTop(sticky)) {
+        this._addToStickyContainer(sticky, this.stickyAbove, _getStickyContentTop(sticky)!);
       }
 
-      if (sticky.canStickyBottom && sticky.stickyContentBottom) {
-        this._addToStickyContainer(sticky, this.stickyBelow, sticky.stickyContentBottom);
+      if (sticky.canStickyBottom && _getStickyContentBottom(sticky)) {
+        this._addToStickyContainer(sticky, this.stickyBelow, _getStickyContentBottom(sticky)!);
       }
     }
   };
@@ -244,12 +260,13 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
 
     stickyItems.forEach((sticky: Sticky) => {
       const { isStickyTop, isStickyBottom } = sticky.state;
-      if (sticky.nonStickyContent) {
+      const nonStickyContent = _getNonStickyContent(sticky);
+      if (nonStickyContent) {
         if (isStickyTop) {
-          stickyTopHeight += sticky.nonStickyContent.offsetHeight;
+          stickyTopHeight += _getOffsetHeight(nonStickyContent);
         }
         if (isStickyBottom) {
-          stickyBottomHeight += sticky.nonStickyContent.offsetHeight;
+          stickyBottomHeight += _getOffsetHeight(nonStickyContent);
         }
         this._checkStickyStatus(sticky);
       }
@@ -271,16 +288,18 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   };
 
   public getScrollPosition = (): number => {
-    if (this.contentContainer) {
-      return this.contentContainer.scrollTop;
+    const { contentContainer } = this;
+    if (contentContainer) {
+      return contentContainer.scrollTop;
     }
 
     return 0;
   };
 
   public syncScrollSticky = (sticky: Sticky): void => {
-    if (sticky && this.contentContainer) {
-      sticky.syncScroll(this.contentContainer);
+    const { contentContainer } = this;
+    if (sticky && contentContainer) {
+      sticky.syncScroll(contentContainer);
     }
   };
 
@@ -300,17 +319,17 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   };
 
   private _checkStickyStatus(sticky: Sticky): void {
-    if (this.stickyAbove && this.stickyBelow && this.contentContainer && sticky.nonStickyContent) {
+    if (this.stickyAbove && this.stickyBelow && this.contentContainer && _getNonStickyContent(sticky)) {
       // If sticky is sticky, then append content to appropriate container
       if (sticky.state.isStickyTop || sticky.state.isStickyBottom) {
-        if (sticky.state.isStickyTop && !this.stickyAbove.contains(sticky.nonStickyContent) && sticky.stickyContentTop) {
-          sticky.addSticky(sticky.stickyContentTop);
+        if (sticky.state.isStickyTop && !this.stickyAbove.contains(_getNonStickyContent(sticky)) && _getStickyContentTop(sticky)) {
+          sticky.addSticky(_getStickyContentTop(sticky)!);
         }
 
-        if (sticky.state.isStickyBottom && !this.stickyBelow.contains(sticky.nonStickyContent) && sticky.stickyContentBottom) {
-          sticky.addSticky(sticky.stickyContentBottom);
+        if (sticky.state.isStickyBottom && !this.stickyBelow.contains(_getNonStickyContent(sticky)) && _getStickyContentBottom(sticky)) {
+          sticky.addSticky(_getStickyContentBottom(sticky)!);
         }
-      } else if (!this.contentContainer.contains(sticky.nonStickyContent)) {
+      } else if (!this.contentContainer.contains(_getNonStickyContent(sticky))) {
         // Reset sticky if it's not sticky and not in the contentContainer element
         sticky.resetSticky();
       }
@@ -325,12 +344,12 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
       // If stickyContentToAdd isn't a child element of target container, then append
       if (!stickyContainer.contains(stickyContentToAdd)) {
         const stickyChildrenElements: Element[] = [].slice.call(stickyContainer.children);
-
+        const isStickyAboveContainer: boolean = stickyContainer === this.stickyAbove;
         const stickyList: Sticky[] = [];
         // Get stickies.  Filter by canStickyTop/Bottom, then sort by distance from top, and then
         // filter by elements that are in the stickyContainer already.
         this._stickies.forEach(stickyItem => {
-          if (stickyContainer === this.stickyAbove && sticky.canStickyTop) {
+          if (isStickyAboveContainer && sticky.canStickyTop) {
             stickyList.push(stickyItem);
           } else if (sticky.canStickyBottom) {
             stickyList.push(stickyItem);
@@ -342,7 +361,7 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
             return (a.state.distanceFromTop || 0) - (b.state.distanceFromTop || 0);
           })
           .filter(item => {
-            const stickyContent = stickyContainer === this.stickyAbove ? item.stickyContentTop : item.stickyContentBottom;
+            const stickyContent = isStickyAboveContainer ? _getStickyContentTop(item) : _getStickyContentBottom(item);
             if (stickyContent) {
               return stickyChildrenElements.indexOf(stickyContent) > -1;
             }
@@ -360,10 +379,9 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
         // If target element to append before is known, then grab respective stickyContentTop/Bottom element and insert before
         let targetContainer: HTMLDivElement | null = null;
         if (targetStickyToAppendBefore) {
-          targetContainer =
-            stickyContainer === this.stickyAbove
-              ? targetStickyToAppendBefore.stickyContentTop
-              : targetStickyToAppendBefore.stickyContentBottom;
+          targetContainer = isStickyAboveContainer
+            ? _getStickyContentTop(targetStickyToAppendBefore)
+            : _getStickyContentBottom(targetStickyToAppendBefore);
         }
         stickyContainer.insertBefore(stickyContentToAdd, targetContainer);
       }
@@ -371,57 +389,26 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
   };
 
   private _removeStickyFromContainers = (sticky: Sticky): void => {
-    if (this.stickyAbove && sticky.stickyContentTop && this.stickyAbove.contains(sticky.stickyContentTop)) {
-      this.stickyAbove.removeChild(sticky.stickyContentTop);
+    if (this.stickyAbove && _getStickyContentTop(sticky) && this.stickyAbove.contains(_getStickyContentTop(sticky))) {
+      this.stickyAbove.removeChild(_getStickyContentTop(sticky)!);
     }
-    if (this.stickyBelow && sticky.stickyContentBottom && this.stickyBelow.contains(sticky.stickyContentBottom)) {
-      this.stickyBelow.removeChild(sticky.stickyContentBottom);
+    if (this.stickyBelow && _getStickyContentBottom(sticky) && this.stickyBelow.contains(_getStickyContentBottom(sticky))) {
+      this.stickyBelow.removeChild(_getStickyContentBottom(sticky)!);
     }
   };
 
   private _onWindowResize = (): void => {
-    const scrollbarWidth = this._getScrollbarWidth();
-    const scrollbarHeight = this._getScrollbarHeight();
-
+    const { contentContainer } = this;
+    /**
+     * Scrollbar height/width changes on window resize
+     */
     this.setState({
-      scrollbarWidth,
-      scrollbarHeight
+      scrollbarWidth: _getScrollbarWidth(contentContainer),
+      scrollbarHeight: _getScrollbarHeight(contentContainer)
     });
 
     this.notifySubscribers();
   };
-
-  private _getStickyContainerStyle = (height: number, isTop: boolean): React.CSSProperties => {
-    return {
-      height: height,
-      ...(getRTL()
-        ? {
-            right: '0',
-            left: `${this.state.scrollbarWidth || this._getScrollbarWidth() || 0}px`
-          }
-        : {
-            left: '0',
-            right: `${this.state.scrollbarWidth || this._getScrollbarWidth() || 0}px`
-          }),
-      ...(isTop
-        ? {
-            top: '0'
-          }
-        : {
-            bottom: `${this.state.scrollbarHeight || this._getScrollbarHeight() || 0}px`
-          })
-    };
-  };
-
-  private _getScrollbarWidth(): number {
-    const { contentContainer } = this;
-    return contentContainer ? contentContainer.offsetWidth - contentContainer.clientWidth : 0;
-  }
-
-  private _getScrollbarHeight(): number {
-    const { contentContainer } = this;
-    return contentContainer ? contentContainer.offsetHeight - contentContainer.clientHeight : 0;
-  }
 
   private _onScroll = () => {
     const { contentContainer } = this;
@@ -434,4 +421,102 @@ export class ScrollablePaneBase extends BaseComponent<IScrollablePaneProps, IScr
 
     this._notifyThrottled();
   };
+}
+
+function _getStickyContainerStyle(scrollbarHeight: number, scrollbarWidth: number, isTop: boolean, height?: number): React.CSSProperties {
+  const isRtl = getRTL();
+  const left = `${scrollbarWidth || 0}px`;
+  const right = '0';
+  return {
+    ...(height !== undefined ? { height: height } : {}),
+    right: isRtl ? right : left,
+    left: isRtl ? left : right,
+    ...(isTop
+      ? {
+          top: '0'
+        }
+      : {
+          bottom: `${scrollbarHeight || 0}px`
+        })
+  };
+}
+
+function _getScrollbarWidth(contentContainer: HTMLDivElement | null): number {
+  return contentContainer ? contentContainer.offsetWidth - contentContainer.clientWidth : 0;
+}
+
+function _getScrollbarHeight(contentContainer: HTMLDivElement | null): number {
+  return contentContainer ? _getOffsetHeight(contentContainer) - contentContainer.clientHeight : 0;
+}
+
+/**
+ * Returns state.scrollbarHeight
+ * @param state Returns
+ */
+function _getStateScrollbarHeight(state: IScrollablePaneState): number {
+  return state.scrollbarHeight;
+}
+
+/**
+ * Returns state.scrollbarWidth
+ * @param state Returns
+ */
+function _getStateScrollbarWidth(state: IScrollablePaneState): number {
+  return state.scrollbarWidth;
+}
+
+/**
+ * Returns state.stickyTopHeight
+ * @param state
+ */
+function _getStateStickyTopHeight(state: IScrollablePaneState): number {
+  return state.stickyTopHeight;
+}
+
+/**
+ * Returns state.stickyBottomHeight
+ * @param state
+ */
+function _getStateStickyBottomHeight(state: IScrollablePaneState): number {
+  return state.stickyBottomHeight;
+}
+
+/**
+ * Returns props.initialScrollPosition
+ * @param props
+ */
+function _getPropsInitialScrollPosition(props: IScrollablePaneProps): number | undefined {
+  return props.initialScrollPosition;
+}
+
+/**
+ * Returns sticky.stickyContentTop
+ * @param sticky
+ */
+function _getStickyContentTop(sticky: Sticky): HTMLDivElement | null {
+  return sticky.stickyContentTop;
+}
+
+/**
+ * Returns sticky.stickyContentBottom
+ * @param sticky
+ */
+function _getStickyContentBottom(sticky: Sticky): HTMLDivElement | null {
+  return sticky.stickyContentBottom;
+}
+
+/**
+ * Returns sticky.nonStickyContent
+ * @param sticky
+ */
+function _getNonStickyContent(sticky: Sticky): HTMLDivElement | null {
+  return sticky.nonStickyContent;
+}
+
+/**
+ * Returns elem.offsetHeight
+ * @param elem - HTMLElement for which offsetHeight is to be calculated
+ */
+function _getOffsetHeight(elem: HTMLElement): number {
+  return elem.offsetHeight;
 }

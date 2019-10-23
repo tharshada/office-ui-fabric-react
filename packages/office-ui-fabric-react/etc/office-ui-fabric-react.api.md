@@ -8940,7 +8940,7 @@ export class Sticky extends BaseComponent<IStickyProps, IStickyState> {
     // (undocumented)
     componentWillUnmount(): void;
     // (undocumented)
-    static contextType: React.Context<IScrollablePaneContext>;
+    static contextType: React.Context<import("../ScrollablePane/ScrollablePane.types").IScrollablePaneContext>;
     // (undocumented)
     static defaultProps: IStickyProps;
     // (undocumented)

@@ -7,9 +7,7 @@ const GlobalClassNames = {
 };
 
 export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyles => {
-  const { className, theme } = props;
-
-  const classNames = getGlobalClassNames(GlobalClassNames, theme);
+  const classNames = getGlobalClassNames(GlobalClassNames, props.theme);
 
   const AboveAndBelowStyles: IStyle = {
     position: 'absolute',
@@ -24,9 +22,9 @@ export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyl
     left: 0,
     WebkitOverflowScrolling: 'touch'
   };
-
+  const borderCSS = '1px solid WindowText';
   return {
-    root: [classNames.root, theme.fonts.medium, positioningStyle, className],
+    root: [classNames.root, props.theme.fonts.medium, positioningStyle, props.className],
     contentContainer: [
       classNames.contentContainer,
       {
@@ -39,7 +37,7 @@ export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyl
         top: 0,
         selectors: {
           [HighContrastSelector]: {
-            borderBottom: '1px solid WindowText'
+            borderBottom: borderCSS
           }
         }
       },
@@ -50,7 +48,7 @@ export const getStyles = (props: IScrollablePaneStyleProps): IScrollablePaneStyl
         bottom: 0,
         selectors: {
           [HighContrastSelector]: {
-            borderTop: '1px solid WindowText'
+            borderTop: borderCSS
           }
         }
       },
